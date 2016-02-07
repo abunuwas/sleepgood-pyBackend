@@ -1,0 +1,4 @@
+Django==1.9.2
+djangorestframework==3.3.2
+South==1.0.2
+wheel==0.24.0
