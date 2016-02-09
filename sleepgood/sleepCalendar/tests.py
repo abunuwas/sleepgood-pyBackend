@@ -61,8 +61,8 @@ class updateCalendarEntryTest(TestCase):
 	def test_update_calendar_entry(self):
 		request = HttpRequest()
 		data = {'_userId': 1,
-				'sleepingQuality': 'Good',
-				'tirednessFeeling': 'Bad',
+				'sleepingQuality': 'good',
+				'tirednessFeeling': 'bad',
 				'date': '2016-02-09T23:48:14.297Z',
 				'UUID': self.setUpEntry.uuid		        
 				}
@@ -70,7 +70,13 @@ class updateCalendarEntryTest(TestCase):
 		response = self.c.put('/1/calendar/update',
 			        content_type='application/json',
 			        data=dataJSON)
-		print(response.content)
+
+		self.assertEqual(response.status_code, 302)
+		
+		dbEntry = Calendar.objects.get(uuid=self.setUpEntry.uuid)
+		self.assertEqual(dbEntry.sleepingQuality, 'good')
+		self.assertEqual(dbEntry.tirednessFeeling, 'bad')
+
 
 
 
