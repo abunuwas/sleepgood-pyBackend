@@ -13,6 +13,9 @@ def generateUUID(username, date):
     return str(uuidValue)
 
 def indexView(request):
+	return HttpResponse('You are in index view!')
+
+def getCalendarEntriesByYear(request, userId, year):
 	queryset = Calendar.objects.all()
 	data = {}
 	for query in queryset:
