@@ -1,0 +1,36 @@
+
+TODO
+
+- Define the JSON response that will go to the fron-end after calling the insertCalendarEntry and
+  the updateCalendarEntry views. Also for the DELETE method. One possibility is returning the json 
+  with the inuptted data, together with an additional field with the key 'operation', and possible 
+  values 'success' or 'failure'. After this, all functions should redirect to the getCalendarEntriesByYear
+  function since, after this operation, I guess the user will be displayed with his calendar, together
+  with a message informing him whether the previous operation was successful or not. Right?
+
+ - Try to implement a Django form for the forms of the application, so we can take advantage of Django's
+   forms validation methods. See if it's possible to bind the data from the json to the Django form. 
+
+- Ensure that all the data coming to a function, whether it's from a form or not, is what is expected to be.
+  For example, ensure that the dates have the expected format, userId is a number, etc. 
+
+- Sanitize input, especially for the database, to avoid sql injection attacks. 
+
+- Define user model. I think that a first model can be:
+
+USER:
+- primary_key
+- fist_name
+- second_name
+- username
+- birht_date
+- email
+- foreign key to their calendar table? 
+- data_created
+- date_modified
+* string representation: username
+* Include on_delete => CASCADE to remove their entries whenever their profile is deleted. 
+
+- Upload application to server.
+
+- Selenium tests. 
