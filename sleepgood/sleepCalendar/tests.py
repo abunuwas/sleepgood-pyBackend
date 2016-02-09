@@ -1,6 +1,7 @@
 from django.test import TestCase, Client
 from django.http import HttpResponse, HttpRequest
 from django.core.urlresolvers import resolve
+from django.utils import timezone
 
 import datetime
 import json
@@ -18,8 +19,8 @@ class insertCalendarEntryTest(TestCase):
 		request = HttpRequest()
 		request.method = 'POST'
 		request.POST['_userId'] = '1'
-		request.POST['sleepingQuality'] = 'Good'
-		request.POST['tirednessFeeling'] = 'Bad'
+		request.POST['sleepingQuality'] = 'good'
+		request.POST['tirednessFeeling'] = 'bad'
 		request.POST['date'] = '2016-02-09T23:48:14.297Z'
 
 		request_elements = dict(request.POST.items())
@@ -47,7 +48,9 @@ class updateCalendarEntryTest(TestCase):
 			                  sleepingQuality='bad',
 			                  tirednessFeeling='good',
 			                  date=date,
-			                  uuid=entryUUID)
+			                  uuid=entryUUID,
+			                  date_created=timezone.now(),
+			                  date_modified=timezone.now())
 		setUpEntry.save()
 		self.setUpEntry = Calendar.objects.get(uuid=entryUUID)
 

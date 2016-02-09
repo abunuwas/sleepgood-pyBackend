@@ -77,7 +77,9 @@ def insertCalendarEntry(request, userId):
 			                date=date,
 			                sleepingQuality=items['sleepingQuality'],
 			                tirednessFeeling=items['tirednessFeeling'],
-			                uuid=entryUUID
+			                uuid=entryUUID,
+			                date_created=timezone.now(),
+			                date_modified=timezone.now()
 			                )
 		newEntry.save()
 		# This should actually return a json reporting sucess or failure
@@ -93,6 +95,7 @@ def updateCalendarEntry(request, userId):
 	dbEntry = Calendar.objects.get(uuid=entryUUID)
 	dbEntry.sleepingQuality = inputData['sleepingQuality']
 	dbEntry.tirednessFeeling = inputData['tirednessFeeling']
+	dbEntry.date_modified = timezone.now()
 	dbEntry.save()
 	# This should actually return a json reporting sucess or failure
 	return redirect('/')
