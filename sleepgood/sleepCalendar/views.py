@@ -80,13 +80,22 @@ def insertCalendarEntry(request, userId):
 			                uuid=entryUUID
 			                )
 		newEntry.save()
+		# This should actually return a json reporting sucess or failure
 		return redirect('/')
 	if request.method == 'PUT':
 		return redirect('/{}/calendar/update'.format(str(userId)))
 
 def updateCalendarEntry(request, userId):
+	if request.method == 'GET':
+		return HttpResponse('You are in the updateCalendarEntry, but you are using the wrong method!!')
 	inputData = dict(json.loads(request.body.decode()))
-	return HttpResponse(inputData['UUID'])
+	entryUUID = inputData['UUID']
+	dbEntry = Calendar.objects.get(uuid=entryUUID)
+	dbEntry.sleepingQuality = inputData['sleepingQuality']
+	dbEntry.tirednessFeeling = inputData['tirednessFeeling']
+	dbEntry.save()
+	# This should actually return a json reporting sucess or failure
+	return redirect('/')
 
 
 
