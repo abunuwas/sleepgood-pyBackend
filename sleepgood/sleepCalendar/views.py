@@ -61,4 +61,15 @@ def generateUUID(username, date):
 	uuidValue = uuid.uuid3(uuid.NAMESPACE_DNS, username + date)
 	return str(uuidValue)
 
-
+def insertCalendarEntry(request, userId):
+	if request.method == 'POST':
+		items = dict(request.POST.items())
+		date = getDate(items['date'])
+		newEntry = Calendar(userId=userId,
+			                date=date,
+			                sleepingQuality=items['sleepingQuality'],
+			                tirednessFeeling=items['tirednessFeeling'],
+			                uuid=generateUUID(str(userId), getYearMonthDayFromISO(items['date']))
+			                )
+		newEntry.save()
+		return redirect('/')
