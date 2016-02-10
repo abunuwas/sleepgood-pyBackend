@@ -34,13 +34,16 @@ def getCalendarEntriesByYear(request, userId, year):
 def getYearMonthDayFromISO(dateISO):
 	'''
 	Expects a date in ISO format as returned by the JavaScript function toISOString().
-	For example: 2016-02-09T22:41:21.955Z.
+	For example: 2016-02-09T22:41:21.955Z => 2016-02-09.
 	'''
-	return dateISO[:10]
+	return dateISO[:10].strip()
 
 def makeDatetimeObject(date):
-	'''Expects a date string in the following format: 2006-12-01'''
-	dateList = date.split('-')
+	'''
+	Expects a date string in the following format: 2006-12-01 and returns a datetime object of the 
+	following format: datetime.datetime(2016, 12, 1)
+	'''
+	dateList = date.strip().split('-')
 	dateIntegers = [int(i) for i in dateList]
 	return datetime.datetime(dateIntegers[0], dateIntegers[1], dateIntegers[2])
 
@@ -62,14 +65,19 @@ def generateUUID(username, date):
 	return str(uuidValue)
 
 def insertCalendarEntry(request, userId):
+	if request.method == 'GET':
+		return HttpResponse('You should use a post method!')
 	if request.method == 'POST':
 		items = dict(request.POST.items())
+		## WARNING: this is a naive datetime; it should include also time zone information. 
 		date = getDate(items['date'])
+		dateString = getYearMonthDayFromISO(items['date'])
+		entryUUID = generateUUID(str(userId), dateString)
 		newEntry = Calendar(userId=userId,
 			                date=date,
 			                sleepingQuality=items['sleepingQuality'],
 			                tirednessFeeling=items['tirednessFeeling'],
-			                uuid=generateUUID(str(userId), getYearMonthDayFromISO(items['date']))
+			                uuid=entryUUID
 			                )
 		newEntry.save()
 		return redirect('/')
