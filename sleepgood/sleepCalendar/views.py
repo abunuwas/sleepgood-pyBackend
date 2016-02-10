@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.core import serializers
 from django.utils import timezone
 
@@ -81,3 +81,13 @@ def insertCalendarEntry(request, userId):
 			                )
 		newEntry.save()
 		return redirect('/')
+	if request.method == 'PUT':
+		return redirect('/{}/calendar/update'.format(str(userId)))
+
+def updateCalendarEntry(request, userId):
+	inputData = dict(json.loads(request.body.decode()))
+	return HttpResponse(inputData['UUID'])
+
+
+
+
