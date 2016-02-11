@@ -82,8 +82,12 @@ def insertCalendarEntry(request, userId):
 			                date_modified=timezone.now()
 			                )
 		newEntry.save()
-		# This should actually return a json reporting sucess or failure
-		return redirect('/')
+		
+		returnEntry = Calendar.objects.get(uuid=entryUUID)
+		returnEntryDict = returnEntry.getDict()
+		returnEntryDict['operation'] = 'sucess'
+		return JsonResponse(returnEntryDict)
+		#return redirect('/')
 	if request.method == 'PUT':
 		return redirect('/{}/calendar/update'.format(str(userId)))
 
