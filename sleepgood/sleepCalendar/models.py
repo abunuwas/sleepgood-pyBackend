@@ -17,3 +17,18 @@ class Calendar(models.Model):
 	def __str__(self):
 		return 'Calendar(user={}, date={}, sleepingQuality={}, tirednessFeeling={}, uuid={}'.format(
 			self.userId, self.date, self.sleepingQuality, self.tirednessFeeling, self.uuid)
+
+	def getDict(self):
+		'''
+		Some of the class attributes are instances of other classes, so they are not serializable into Json.
+		This method provides a dictionary representation of all class' attributes for those cases in which
+		they must be serialized.  
+		'''
+		return {'sleepingQuality': self.sleepingQuality,
+		         'tirednessFeeling': self.tirednessFeeling,
+		         'date': str(self.date),
+		         'userId': str(self.userId),
+		         'date_created': str(self.date_created),
+		         'date_modified': str(self.date_modified)
+		         }
+
