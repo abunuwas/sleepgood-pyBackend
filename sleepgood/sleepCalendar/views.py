@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.core import serializers
 from django.utils import timezone
+from django.views.generic import View
 
 import uuid
 import json
@@ -64,45 +65,50 @@ def generateUUID(username, date):
 	uuidValue = uuid.uuid3(uuid.NAMESPACE_DNS, username + date)
 	return str(uuidValue)
 
-def insertCalendarEntry(request, userId):
-	if request.method == 'GET':
-		return HttpResponse('You should use a post method!')
-	if request.method == 'POST':
-		items = dict(request.POST.items())
-		## WARNING: this is a naive datetime; it should include also time zone information. 
-		date = getDate(items['date'])
-		dateString = getYearMonthDayFromISO(items['date'])
-		entryUUID = generateUUID(str(userId), dateString)
-		newEntry = Calendar(userId=userId,
-			                date=date,
-			                sleepingQuality=items['sleepingQuality'],
-			                tirednessFeeling=items['tirednessFeeling'],
-			                uuid=entryUUID,
-			                date_created=timezone.now(),
-			                date_modified=timezone.now()
-			                )
-		newEntry.save()
-		
-		returnEntry = Calendar.objects.get(uuid=entryUUID)
-		returnEntryDict = returnEntry.getDict()
-		returnEntryDict['operation'] = 'sucess'
-		return JsonResponse(returnEntryDict)
-		#return redirect('/')
-	if request.method == 'PUT':
-		return redirect('/{}/calendar/update'.format(str(userId)))
+class InsertUpdate(View):
+	http_method_names = ['post', 'put']
 
-def updateCalendarEntry(request, userId):
-	if request.method == 'GET':
-		return HttpResponse('You are in the updateCalendarEntry, but you are using the wrong method!!')
-	inputData = dict(json.loads(request.body.decode()))
-	entryUUID = inputData['UUID']
-	dbEntry = Calendar.objects.get(uuid=entryUUID)
-	dbEntry.sleepingQuality = inputData['sleepingQuality']
-	dbEntry.tirednessFeeling = inputData['tirednessFeeling']
-	dbEntry.date_modified = timezone.now()
-	dbEntry.save()
-	# This should actually return a json reporting sucess or failure
-	return redirect('/')
+	def post(self, request, userId):
+		if request.method == 'GET':
+			return HttpResponse('You should use a post method!')
+		if request.method == 'POST':
+			items = dict(request.POST.items())
+			## WARNING: this is a naive datetime; it should include also time zone information. 
+			date = getDate(items['date'])
+			dateString = getYearMonthDayFromISO(items['date'])
+			entryUUID = generateUUID(str(userId), dateString)
+			newEntry = Calendar(userId=userId,
+				                date=date,
+				                sleepingQuality=items['sleepingQuality'],
+				                tirednessFeeling=items['tirednessFeeling'],
+				                uuid=entryUUID,
+				                date_created=timezone.now(),
+				                date_modified=timezone.now()
+				                )
+			newEntry.save()
+			
+			returnEntry = Calendar.objects.get(uuid=entryUUID)
+			returnEntryDict = returnEntry.getDict()
+			returnEntryDict['operation'] = 'sucess'
+			return JsonResponse(returnEntryDict)
+		if request.method == 'PUT':
+			return redirect('/{}/calendar/update'.format(str(userId)))
+
+	def put(self, request, userId):
+		if request.method == 'GET':
+			return HttpResponse('You are in the updateCalendarEntry, but you are using the wrong method!!')
+		inputData = dict(json.loads(request.body.decode()))
+		entryUUID = inputData['UUID']
+		dbEntry = Calendar.objects.get(uuid=entryUUID)
+		dbEntry.sleepingQuality = inputData['sleepingQuality']
+		dbEntry.tirednessFeeling = inputData['tirednessFeeling']
+		dbEntry.date_modified = timezone.now()
+		dbEntry.save()
+		# This should actually return a json reporting sucess or failure
+		return redirect('/')
+
+	def delete(self, request, userId):
+		pass
 
 
 
