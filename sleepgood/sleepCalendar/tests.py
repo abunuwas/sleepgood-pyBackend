@@ -6,7 +6,7 @@ from django.utils import timezone
 import datetime
 import json
 
-from .views import InsertUpdate, generateUUID, getDate, getYearMonthDayFromISO
+from .views import InsertUpdate, generateUUID, getDatetimeFromISO
 from .models import Calendar
 
 
@@ -44,10 +44,9 @@ class updateCalendarEntryTest(TestCase):
 
 		userId = 1
 		dateISO = '2016-02-09T23:48:14.297Z'
-		dateString = getYearMonthDayFromISO(dateISO)
-		date = getDate(dateISO)
-		generateUUID(str(userId), dateString)
-		entryUUID = generateUUID(str(userId), dateString)
+		date = getDatetimeFromISO(dateISO)
+		generateUUID(str(userId), str(date))
+		entryUUID = generateUUID(str(userId), str(date))
 		setUpEntry = Calendar(userId=1,
 			                  sleepingQuality='bad',
 			                  tirednessFeeling='good',
