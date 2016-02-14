@@ -74,6 +74,38 @@ class updateCalendarEntryTest(TestCase):
 		self.assertEqual(dbEntry.sleepingQuality, 'good')
 		self.assertEqual(dbEntry.tirednessFeeling, 'bad')
 
+class deleteCalendarEntry(TestCase):
+
+	def setUp(self):
+		self.c = Client()
+
+		userId = 1
+		dateISO = '2016-02-09T23:48:14.297Z'
+		date = getDatetimeFromISO(dateISO)
+		generateUUID(str(userId), str(date))
+		entryUUID = generateUUID(str(userId), str(date))
+		setUpEntry = Calendar(userId=1,
+			                  sleepingQuality='bad',
+			                  tirednessFeeling='good',
+			                  date=date,
+			                  uuid=entryUUID,
+			                  date_created=timezone.now(),
+			                  date_modified=timezone.now())
+		setUpEntry.save()
+		self.setUpEntry = Calendar.objects.get(uuid=entryUUID)
+
+	def test_delete_calendar_entry(self):
+		request = HttpRequest()
+		data = {'_userId': 1,
+				'UUID': self.setUpEntry.uuid		        
+				}
+		dataJSON = json.dumps(data)
+		response = self.c.delete('/1/calendar',
+			        content_type='application/json',
+			        data=dataJSON)
+		
+		self.assertEqual(len(Calendar.objects.all()), 0)
+
 
 
 
