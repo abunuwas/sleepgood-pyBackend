@@ -54,8 +54,8 @@ def generateUUID(userId, date):
 	Returns an md5 hash using string which combines the user id plus the calendar date of the event
 	as a way to generate a unique value. Not sure yet, though, if this is the best approach...
 	'''
-	#currentMilliseconds = datetime.datetime.now().timestamp()
-	uuidValue = uuid.uuid3(uuid.NAMESPACE_DNS, userId + date)
+	currentMilliseconds = datetime.datetime.now().timestamp()
+	uuidValue = uuid.uuid3(uuid.NAMESPACE_DNS, userId + date + str(currentMilliseconds))
 	return str(uuidValue)
 
 class InsertUpdate(View):
