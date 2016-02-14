@@ -21,13 +21,13 @@ def getCalendarEntriesByYear(request, userId, year):
 	data = {}
 	for query in queryset:
 		date = query.date
-		date = '{}-{}-{}'.format(date.year, date.month, date.day)
+		date = '{}-{:02d}-{}'.format(date.year, date.month, date.day)
 		data[date] = {'id': query.pk,
-		                    'SLEEPINGQUALITY': query.sleepingQuality,
-		                    'TIREDNESSFEELING': query.tirednessFeeling,
-		                    'USERID': query.userId,
-		                    'DATE': str(query.date),
-		                    'UUID': query.uuid}
+		                    'sleepingQuality': query.sleepingQuality,
+		                    'tirednessFeeling': query.tirednessFeeling,
+		                    'userId': query.userId,
+		                    'date': str(query.date),
+		                    'uuid': query.uuid}
 	data = json.dumps(data)
 	#data = serializers.serialize('json', query)
 	return HttpResponse(data, content_type='application/json')
