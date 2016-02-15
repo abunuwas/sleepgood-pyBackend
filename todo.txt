@@ -1,6 +1,14 @@
 
 TODO
 
+- User model
+- CSRF
+- More tests to ensure everything works properly.
+- Allow to modify / delete / insert several entries in one call or only one per call?
+- Traditional registration with mail & pwd
+- Modify json response to ensure every function returns what the client expects.
+- In some functions I expect a json request (update, delete), check with Vicens that this is possible, or what should I expect?
+
 - Define the JSON response that will go to the fron-end after calling the insertCalendarEntry and
   the updateCalendarEntry views. Also for the DELETE method. One possibility is returning the json 
   with the inuptted data, together with an additional field with the key 'operation', and possible 
