@@ -4,6 +4,7 @@ from django.core import serializers
 from django.utils import timezone
 from django.views.generic import View
 from django.core.exceptions import SuspiciousOperation
+from django.contrib.auth.models import User
 
 import uuid
 import json
@@ -58,15 +59,16 @@ def generateUUID(userId, date):
 	uuidValue = uuid.uuid3(uuid.NAMESPACE_DNS, userId + date + str(currentMilliseconds))
 	return str(uuidValue)
 
-class InsertUpdate(View):
+class InsertUpdateDelete(View):
 	http_method_names = ['post', 'put', 'delete']
 
-	def post(self, request, userId):
+	def post(self, request):
 		items = dict(request.POST.items())
 		## WARNING: this is a naive datetime; it should include also time zone information. 
 		date = getDatetimeFromISO(items['date'])
 		entryUUID = generateUUID(str(userId), str(date))
-		newEntry = Calendar(userId=userId,
+		user = User.objects.get(pk=items['_userId'])
+		newEntry = Calendar(user=user,
 			                date=date,
 			                sleepingQuality=items['sleepingQuality'],
 			                tirednessFeeling=items['tirednessFeeling'],
