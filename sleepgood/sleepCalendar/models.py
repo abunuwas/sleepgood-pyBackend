@@ -2,8 +2,16 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class Calendar(models.Model):
-	sleepingQuality = models.CharField(max_length=7)
-	tirednessFeeling = models.CharField(max_length=7)
+	good = 'good'
+	bad = 'bad'
+	regular = 'regular'
+	choices = (
+		(good, 'good'), 
+		(bad, 'bad'), 
+		(regular, 'regular')
+		)
+	sleepingQuality = models.CharField(max_length=7, choices=choices)
+	tirednessFeeling = models.CharField(max_length=7, choices=choices)
 	date = models.DateTimeField()
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	# Provisional field ofr user id until the model for user is implemented
