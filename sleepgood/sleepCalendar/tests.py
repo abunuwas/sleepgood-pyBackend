@@ -2,11 +2,12 @@ from django.test import TestCase, Client
 from django.http import HttpResponse, HttpRequest
 from django.core.urlresolvers import resolve
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 import datetime
 import json
 
-from .views import InsertUpdate, generateUUID, getDatetimeFromISO
+from .views import InsertUpdateDelete, generateUUID, getDatetimeFromISO
 from .models import Calendar
 
 
@@ -17,6 +18,10 @@ class insertCalendarEntryTest(TestCase):
 
 	def setUp(self):
 		self.c = Client()
+
+		carlos = User(username='carlos')
+		carlos.set_password('carlos')
+		carlos.save()
 
 	def test_entries_inserted_correctly(self):
 		data = {'_userId': '1',
@@ -42,12 +47,15 @@ class updateCalendarEntryTest(TestCase):
 	def setUp(self):
 		self.c = Client()
 
-		userId = 1
+		carlos = User(username='carlos')
+		carlos.set_password('carlos')
+		carlos.save()
+
 		dateISO = '2016-02-09T23:48:14.297Z'
 		date = getDatetimeFromISO(dateISO)
-		generateUUID(str(userId), str(date))
-		entryUUID = generateUUID(str(userId), str(date))
-		setUpEntry = Calendar(userId=1,
+		generateUUID(str(carlos.id), str(date))
+		entryUUID = generateUUID(str(carlos.id), str(date))
+		setUpEntry = Calendar(user=carlos,
 			                  sleepingQuality='bad',
 			                  tirednessFeeling='good',
 			                  date=date,
@@ -79,12 +87,15 @@ class deleteCalendarEntry(TestCase):
 	def setUp(self):
 		self.c = Client()
 
-		userId = 1
+		carlos = User(username='carlos')
+		carlos.set_password('carlos')
+		carlos.save()
+
 		dateISO = '2016-02-09T23:48:14.297Z'
 		date = getDatetimeFromISO(dateISO)
-		generateUUID(str(userId), str(date))
-		entryUUID = generateUUID(str(userId), str(date))
-		setUpEntry = Calendar(userId=1,
+		generateUUID(str(carlos.id), str(date))
+		entryUUID = generateUUID(str(carlos.id), str(date))
+		setUpEntry = Calendar(user=carlos,
 			                  sleepingQuality='bad',
 			                  tirednessFeeling='good',
 			                  date=date,
