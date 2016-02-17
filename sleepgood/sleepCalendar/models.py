@@ -14,7 +14,7 @@ class Calendar(models.Model):
 
 	def __str__(self):
 		return 'Calendar(user={}, date={}, sleepingQuality={}, tirednessFeeling={}, uuid={})'.format(
-			self.userId, self.date, self.sleepingQuality, self.tirednessFeeling, self.uuid)
+			self.user, self.date, self.sleepingQuality, self.tirednessFeeling, self.uuid)
 
 	def getDict(self):
 		'''
@@ -25,7 +25,7 @@ class Calendar(models.Model):
 		return {'sleepingQuality': self.sleepingQuality,
 		         'tirednessFeeling': self.tirednessFeeling,
 		         'date': str(self.date),
-		         'userId': str(self.userId),
+		         'userId': str(self.user),
 		         'date_created': str(self.date_created),
 		         'date_modified': str(self.date_modified)
 		         }
