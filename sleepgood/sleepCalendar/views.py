@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.views.generic import View
 from django.core.exceptions import SuspiciousOperation
 from django.contrib.auth.models import User
+from django.views.decorators.http import require_http_methods
 
 import uuid
 import json
@@ -17,7 +18,12 @@ from .models import Calendar
 def indexView(request):
 	return HttpResponse('You are in index view!')
 
+@require_http_methods(["GET"])
 def getCalendarEntriesByYear(request, year):
+	'''
+	Returns all calendar entries for a given year. Only accepts get methods.
+	If a different method is used in the request, returns a 405 status code. 
+	'''
 	queryset = Calendar.objects.all()
 	data = {}
 	for query in queryset:
@@ -26,13 +32,11 @@ def getCalendarEntriesByYear(request, year):
 		data[date] = {'id': query.pk,
 		                    'sleepingQuality': query.sleepingQuality,
 		                    'tirednessFeeling': query.tirednessFeeling,
-		                    'userId': query.userId,
+		                    'userId': query.user.id,
 		                    'date': str(query.date),
 		                    'uuid': query.uuid}
 	data = json.dumps(data)
-	#data = serializers.serialize('json', query)
 	return HttpResponse(data, content_type='application/json')
-	#return HttpResponse('You are in index view!')
 
 
 def getDatetimeFromISO(dateISO):
@@ -59,12 +63,12 @@ def generateUUID(userId, date):
 	uuidValue = uuid.uuid3(uuid.NAMESPACE_DNS, userId + date + str(currentMilliseconds))
 	return str(uuidValue)
 
+
 class InsertUpdateDelete(View):
 	http_method_names = ['post', 'put', 'delete']
 
 	def post(self, request):
 		items = dict(request.POST.items())
-		## WARNING: this is a naive datetime; it should include also time zone information. 
 		date = getDatetimeFromISO(items['date'])
 		entryUUID = generateUUID(str(items['_userId']), str(date))
 		user = User.objects.get(pk=items['_userId'])
@@ -102,7 +106,6 @@ class InsertUpdateDelete(View):
 		dbEntry.tirednessFeeling = inputData['tirednessFeeling']
 		dbEntry.date_modified = timezone.now()
 		dbEntry.save()
-		# This should actually return a json reporting sucess or failure
 		responseData = Calendar.objects.get(uuid=entryUUID)
 		responseData = responseData.getDict()
 		returnJson = {
@@ -112,7 +115,6 @@ class InsertUpdateDelete(View):
 						'responseData': responseData
 						}
 		return JsonResponse(returnJson)
-
 
 	def delete(self, request):
 		'''
@@ -125,7 +127,6 @@ class InsertUpdateDelete(View):
 		entryUUID = requestData['UUID']
 		dbEntry = Calendar.objects.get(uuid=entryUUID)
 		dbEntry.delete()
-		# This should actually return a json reporting sucess or failure
 		returnJson = {
 						'message': 'success',
 						'status': 200,

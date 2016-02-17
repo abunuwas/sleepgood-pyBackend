@@ -11,7 +11,36 @@ from .views import InsertUpdateDelete, generateUUID, getDatetimeFromISO
 from .models import Calendar
 
 
-#### USE DECORATORS TO SPECIFY WHICH METHODS ARE ALLOWED IN EVERY VIEW
+class getCalendarEntryTest(TestCase):
+
+	def setUp(self):
+		self.c = Client()
+
+		carlos = User(username='carlos')
+		carlos.set_password('carlos')
+		carlos.save()
+
+		dateISO = '2016-02-09T23:48:14.297Z'
+		date = getDatetimeFromISO(dateISO)
+		generateUUID(str(carlos.id), str(date))
+		entryUUID = generateUUID(str(carlos.id), str(date))
+		setUpEntry = Calendar(user=carlos,
+			                  sleepingQuality='bad',
+			                  tirednessFeeling='good',
+			                  date=date,
+			                  uuid=entryUUID,
+			                  date_created=timezone.now(),
+			                  date_modified=timezone.now())
+		setUpEntry.save()
+		self.setUpEntry = Calendar.objects.get(uuid=entryUUID)
+
+	def test_retrieve_entries(self):
+		response = self.c.get('/calendar/year/2016')
+		self.assertEqual(response.status_code, 200)
+
+	def test_retrieve_wrong_method(self):
+		response = self.c.post('/calendar/year/2016')
+		self.assertEqual(response.status_code, 405)	
 
 
 class insertCalendarEntryTest(TestCase):
@@ -77,7 +106,7 @@ class updateCalendarEntryTest(TestCase):
 		response = self.c.put('/calendar',
 			        content_type='application/json',
 			        data=dataJSON)
-		
+
 		dbEntry = Calendar.objects.get(uuid=self.setUpEntry.uuid)
 		self.assertEqual(dbEntry.sleepingQuality, 'good')
 		self.assertEqual(dbEntry.tirednessFeeling, 'bad')
