@@ -17,7 +17,7 @@ from .models import Calendar
 def indexView(request):
 	return HttpResponse('You are in index view!')
 
-def getCalendarEntriesByYear(request, userId, year):
+def getCalendarEntriesByYear(request, year):
 	queryset = Calendar.objects.all()
 	data = {}
 	for query in queryset:
@@ -66,7 +66,7 @@ class InsertUpdateDelete(View):
 		items = dict(request.POST.items())
 		## WARNING: this is a naive datetime; it should include also time zone information. 
 		date = getDatetimeFromISO(items['date'])
-		entryUUID = generateUUID(str(userId), str(date))
+		entryUUID = generateUUID(str(items['_userId']), str(date))
 		user = User.objects.get(pk=items['_userId'])
 		newEntry = Calendar(user=user,
 			                date=date,
@@ -83,7 +83,7 @@ class InsertUpdateDelete(View):
 		returnEntryDict['operation'] = 'sucess'
 		return JsonResponse(returnEntryDict)
 
-	def put(self, request, userId):
+	def put(self, request):
 		'''
 		The request object cannot have a PUT attribute, so the data that comes in a  put request
 		cannot be accessed by calling request.PUT. Instead, we need to access the body of the
@@ -100,7 +100,7 @@ class InsertUpdateDelete(View):
 		# This should actually return a json reporting sucess or failure
 		return redirect('/')
 
-	def delete(self, request, userId):
+	def delete(self, request):
 		'''
 		The request object cannot have a DELETE attribute, so the data that comes in a  put request
 		cannot be accessed by calling request.DELETE. Instead, we need to access the body of the

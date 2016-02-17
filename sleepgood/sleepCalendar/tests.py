@@ -30,14 +30,14 @@ class insertCalendarEntryTest(TestCase):
 				'date': '2016-02-09T23:48:14.297Z'
 				}
 
-		response = self.c.post('/1/calendar', data=data)
+		response = self.c.post('/calendar', data=data)
 
 		event = Calendar.objects.all()
 
 		self.assertEqual(len(event), 1)
 
 	def test_wrong_method(self):
-		response = self.c.get('/1/calendar')
+		response = self.c.get('/calendar')
 
 		self.assertEqual(response.status_code, 405)
 
@@ -74,7 +74,7 @@ class updateCalendarEntryTest(TestCase):
 				'UUID': self.setUpEntry.uuid		        
 				}
 		dataJSON = json.dumps(data)
-		response = self.c.put('/1/calendar',
+		response = self.c.put('/calendar',
 			        content_type='application/json',
 			        data=dataJSON)
 		
@@ -111,7 +111,7 @@ class deleteCalendarEntry(TestCase):
 				'UUID': self.setUpEntry.uuid		        
 				}
 		dataJSON = json.dumps(data)
-		response = self.c.delete('/1/calendar',
+		response = self.c.delete('/calendar',
 			        content_type='application/json',
 			        data=dataJSON)
 		
