@@ -78,10 +78,15 @@ class InsertUpdateDelete(View):
 			                )
 		newEntry.save()
 		
-		returnEntry = Calendar.objects.get(uuid=entryUUID)
-		returnEntryDict = returnEntry.getDict()
-		returnEntryDict['operation'] = 'sucess'
-		return JsonResponse(returnEntryDict)
+		responseData = Calendar.objects.get(uuid=entryUUID)
+		responseData = responseData.getDict()
+		returnJson = {
+						'message': 'success',
+						'status': 200,
+						'token': '',
+						'responseData': responseData						
+						}
+		return JsonResponse(returnJson)
 
 	def put(self, request):
 		'''
@@ -98,7 +103,16 @@ class InsertUpdateDelete(View):
 		dbEntry.date_modified = timezone.now()
 		dbEntry.save()
 		# This should actually return a json reporting sucess or failure
-		return redirect('/')
+		responseData = Calendar.objects.get(uuid=entryUUID)
+		responseData = responseData.getDict()
+		returnJson = {
+						'message': 'success',
+						'status': 200,
+						'token': '',
+						'responseData': responseData
+						}
+		return JsonResponse(returnJson)
+
 
 	def delete(self, request):
 		'''
@@ -112,8 +126,12 @@ class InsertUpdateDelete(View):
 		dbEntry = Calendar.objects.get(uuid=entryUUID)
 		dbEntry.delete()
 		# This should actually return a json reporting sucess or failure
-		return redirect('/')
-
+		returnJson = {
+						'message': 'success',
+						'status': 200,
+						'token': '',
+						}
+		return JsonResponse(returnJson)
 
 
 
