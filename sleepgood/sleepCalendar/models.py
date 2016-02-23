@@ -14,11 +14,10 @@ class Calendar(models.Model):
 	tirednessFeeling = models.CharField(max_length=7, choices=choices)
 	date = models.DateTimeField()
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
-	# Provisional field ofr user id until the model for user is implemented
-	#userId = models.IntegerField()
-	uuid = models.CharField(max_length=32) # verify that certainly 32 is the max length of an md5 hash
-	date_created = models.DateTimeField()
-	date_modified = models.DateTimeField()
+	uuid = models.CharField(max_length=32) 
+	# Verify that auto_now_add and auto_now are actually the best choices for this
+	date_created = models.DateTimeField(auto_now_add=True)
+	date_modified = models.DateTimeField(auto_now=True)
 
 	def __str__(self):
 		return 'Calendar(user={}, date={}, sleepingQuality={}, tirednessFeeling={}, uuid={})'.format(
