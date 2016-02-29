@@ -3,6 +3,7 @@ from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.auth import authenticate, login, BACKEND_SESSION_KEY, SESSION_KEY
 from django.contrib.sessions.backends.db import SessionStore
 from django.conf import settings
+from django.http import HttpResponse, HttpRequest 
 
 from .views import Register, login, logout
 
@@ -26,17 +27,16 @@ class registrationUserTest(TestCase):
 		print(response.content)
 
 	def test_sessions(self):
+		self.c.login(username='jacob', email='j@j.com')
+		response = self.c.get('/accounts/login')
+		print('Result after login ', response)
 		jacob = User.objects.get(email='j@j.com')
-		session = SessionStore()
-		session[SESSION_KEY] = jacob.pk
-		session[BACKEND_SESSION_KEY] = settings.AUTHENTICATION_BACKENDS[0]
-		session.save()
-		request = self.c.get('/accounts/logout')
-		request.add_cookie(dict(
-			name=settings.SESSION_COOKIE_NAME,
-			value=session.session_key,
-			path='/'))
-		print('Request data is', request.META)
+		session = self.c.session
+		session['member_id'] = jacob.pk
+		print(dict(session))
+		#response = logout(request)
+		#print(response)
+		#print('Request data is', request.META)
 
 	def test_wrong(self):
 		response = self.c.get('/accounts/login')
