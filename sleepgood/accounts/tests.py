@@ -20,6 +20,7 @@ class registrationUserTest(TestCase):
 				'email': 'carlos@carlos.com',
 				'password': 'asdf'
 				}
+
 		response = self.c.post('/accounts/register', data=data)
 
 		carlos = User.objects.all()
