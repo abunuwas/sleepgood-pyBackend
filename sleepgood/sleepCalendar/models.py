@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+import uuid
+
 class Calendar(models.Model):
 	good = 'good'
 	bad = 'bad'
@@ -14,7 +16,7 @@ class Calendar(models.Model):
 	tirednessFeeling = models.CharField(max_length=7, choices=choices)
 	date = models.DateTimeField()
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
-	uuid = models.CharField(max_length=32) 
+	uuid = models.UUIDField(default=uuid.uuid3, editable=False) 
 	# Verify that auto_now_add and auto_now are actually the best choices for this
 	date_created = models.DateTimeField(auto_now_add=True)
 	date_modified = models.DateTimeField(auto_now=True)
