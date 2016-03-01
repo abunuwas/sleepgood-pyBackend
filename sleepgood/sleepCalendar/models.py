@@ -37,3 +37,6 @@ class Calendar(models.Model):
 		         'date_modified': str(self.date_modified)
 		         }
 
+	class Meta:
+		ordering = ('date_created',)
+

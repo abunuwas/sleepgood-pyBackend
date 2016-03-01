@@ -56,9 +56,8 @@ MIDDLEWARE_CLASSES = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-        ]
+    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
+    'PAGE_SIZE': 10
 }
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'

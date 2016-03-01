@@ -8,4 +8,5 @@ urlpatterns = [
     url('^calendar$', views.InsertUpdateDelete.as_view(), name='insertCalendarEntry'), 
     url('calendar/year/(?P<year>\d+)$', views.getCalendarEntriesByYear, name='getCalendarEntriesByYear'),
     #url('^(?P<userId>\d+)/calendar/update$', views.InsertUpdate.as_view(), name='updateCalendarEntry'),
+
     ]

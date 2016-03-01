@@ -4,8 +4,10 @@ from django.core import serializers
 from django.utils import timezone
 from django.views.generic import View
 from django.core.exceptions import SuspiciousOperation
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.views.decorators.http import require_http_methods
+
+from rest_framework import viewsets
 
 import uuid
 import json
@@ -13,6 +15,7 @@ import datetime
 import dateutil.parser
 
 from .models import Calendar
+from .serializers import UserSerializer, GroupSerializer
 
 
 def indexView(request):
@@ -133,6 +136,23 @@ class InsertUpdateDelete(View):
 						'token': '',
 						}
 		return JsonResponse(returnJson)
+
+class UserViewSet(viewsets.ModelViewSet):
+	"""
+	API endpoint that allows users to be viewed or edited.
+	"""
+	queryset = User.objects.all().order_by('-date_joined')
+	serializer_class = UserSerializer
+
+class GroupViewSet(viewsets.ModelViewSet):
+	'''
+	API endpoint that allows groups to be viewed or edied.
+	'''
+	queryset = Group.objects.all()
+	serializer_class = GroupSerializer
+
+
+
 
 
 
