@@ -14,7 +14,7 @@ import json
 import datetime
 import dateutil.parser
 
-from .models import Calendar
+from .models import Day
 from .serializers import UserSerializer, GroupSerializer
 
 

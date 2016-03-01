@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 import uuid
 
-class Calendar(models.Model):
+class Day(models.Model):
 	good = 'good'
 	bad = 'bad'
 	regular = 'regular'
@@ -14,7 +14,7 @@ class Calendar(models.Model):
 		)
 	sleepingQuality = models.CharField(max_length=7, choices=choices)
 	tirednessFeeling = models.CharField(max_length=7, choices=choices)
-	date = models.DateTimeField()
+	day = models.DateTimeField()
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	uuid = models.UUIDField(default=uuid.uuid3, editable=False) 
 	# Verify that auto_now_add and auto_now are actually the best choices for this
