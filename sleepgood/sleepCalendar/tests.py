@@ -4,35 +4,32 @@ from django.core.urlresolvers import resolve
 from django.utils import timezone
 from django.contrib.auth.models import User
 
+from rest_framework.renderers import JSONRenderer
+from rest_framework.parsers import JSONParser
+
 import datetime
 import json
 
-from .views import InsertUpdateDelete, generateUUID, getDatetimeFromISO
-from .models import Calendar
+from .views import InsertUpdateDelete, getDatetimeFromISO
+from .models import Day
+from .serializers import DaySerializer
 
 
-class getCalendarEntryTest(TestCase):
+class GetDayEntryTest(TestCase):
 
 	def setUp(self):
 		self.c = Client()
 
-		carlos = User(username='carlos')
-		carlos.set_password('carlos')
-		carlos.save()
+		carlos = User.objects.create(username='carlos')
 
 		dateISO = '2016-02-09T23:48:14.297Z'
 		date = getDatetimeFromISO(dateISO)
-		generateUUID(str(carlos.id), str(date))
-		entryUUID = generateUUID(str(carlos.id), str(date))
-		setUpEntry = Calendar(user=carlos,
+		setUpEntry = Day.objects.create(user=carlos,
 			                  sleepingQuality='bad',
 			                  tirednessFeeling='good',
 			                  date=date,
-			                  uuid=entryUUID,
-			                  date_created=timezone.now(),
-			                  date_modified=timezone.now())
-		setUpEntry.save()
-		self.setUpEntry = Calendar.objects.get(uuid=entryUUID)
+			                  )
+		self.setUpEntry = Day.objects.get(date=date)
 
 	def test_retrieve_entries(self):
 		response = self.c.get('/calendar/year/2016')
@@ -43,14 +40,12 @@ class getCalendarEntryTest(TestCase):
 		self.assertEqual(response.status_code, 405)	
 
 
-class insertCalendarEntryTest(TestCase):
+class InsertDayEntryTest(TestCase):
 
 	def setUp(self):
 		self.c = Client()
 
-		carlos = User(username='carlos')
-		carlos.set_password('carlos')
-		carlos.save()
+		carlos = User.objects.create(username='carlos')
 
 	def test_entries_inserted_correctly(self):
 		data = {'_userId': '1',
@@ -61,80 +56,67 @@ class insertCalendarEntryTest(TestCase):
 
 		response = self.c.post('/calendar', data=data)
 
-		event = Calendar.objects.all()
+		event = Day.objects.all()
 
 		self.assertEqual(len(event), 1)
 
 	def test_wrong_method(self):
 		response = self.c.get('/calendar')
-
 		self.assertEqual(response.status_code, 405)
 
 
-class updateCalendarEntryTest(TestCase):
+class UpdateDayEntryTest(TestCase):
 
 	def setUp(self):
 		self.c = Client()
 
-		carlos = User(username='carlos')
-		carlos.set_password('carlos')
-		carlos.save()
+		carlos = User.objects.create(username='carlos')
 
 		dateISO = '2016-02-09T23:48:14.297Z'
 		date = getDatetimeFromISO(dateISO)
-		generateUUID(str(carlos.id), str(date))
-		entryUUID = generateUUID(str(carlos.id), str(date))
-		setUpEntry = Calendar(user=carlos,
+		setUpEntry = Day.objects.create(user=carlos,
 			                  sleepingQuality='bad',
 			                  tirednessFeeling='good',
-			                  date=date,
-			                  uuid=entryUUID,
-			                  date_created=timezone.now(),
-			                  date_modified=timezone.now())
-		setUpEntry.save()
-		self.setUpEntry = Calendar.objects.get(uuid=entryUUID)
+			                  date=date
+			                  )
+		self.setUpEntry = Day.objects.get(date=date)
+		print('In setUp ', self.setUpEntry)
 
-	def test_update_calendar_entry(self):
-		request = HttpRequest()
+	def test_update_day_entry(self):
 		data = {'_userId': 1,
 				'sleepingQuality': 'good',
 				'tirednessFeeling': 'bad',
 				'date': '2016-02-09T23:48:14.297Z',
 				'UUID': self.setUpEntry.uuid		        
 				}
+		entry = Day.objects.get(uuid=self.setUpEntry.uuid)
+		print('Testing... ', entry)
 		dataJSON = json.dumps(data)
 		response = self.c.put('/calendar',
 			        content_type='application/json',
 			        data=dataJSON)
 
-		dbEntry = Calendar.objects.get(uuid=self.setUpEntry.uuid)
+		dbEntry = Day.objects.get(uuid=self.setUpEntry.uuid)
 		self.assertEqual(dbEntry.sleepingQuality, 'good')
 		self.assertEqual(dbEntry.tirednessFeeling, 'bad')
 
-class deleteCalendarEntry(TestCase):
+class DeleteDayEntry(TestCase):
 
 	def setUp(self):
 		self.c = Client()
 
-		carlos = User(username='carlos')
-		carlos.set_password('carlos')
-		carlos.save()
+		carlos = User.objects.create(username='carlos')
 
 		dateISO = '2016-02-09T23:48:14.297Z'
 		date = getDatetimeFromISO(dateISO)
-		generateUUID(str(carlos.id), str(date))
-		entryUUID = generateUUID(str(carlos.id), str(date))
-		setUpEntry = Calendar(user=carlos,
+		setUpEntry = Day.objects.create(user=carlos,
 			                  sleepingQuality='bad',
 			                  tirednessFeeling='good',
-			                  date=date,
-			                  uuid=entryUUID,
-			                  date_created=timezone.now(),
-			                  date_modified=timezone.now())
-		setUpEntry.save()
-		self.setUpEntry = Calendar.objects.get(uuid=entryUUID)
+			                  date=date
+			                  )
+		self.setUpEntry = Day.objects.get(date=date)
 
-	def test_delete_calendar_entry(self):
+	def test_delete_day_entry(self):
 		request = HttpRequest()
 		data = {'_userId': 1,
 				'UUID': self.setUpEntry.uuid		        
@@ -144,7 +126,18 @@ class deleteCalendarEntry(TestCase):
 			        content_type='application/json',
 			        data=dataJSON)
 		
-		self.assertEqual(len(Calendar.objects.all()), 0)
+		self.assertEqual(len(Day.objects.all()), 0)
+
+class TestSerializers(TestCase):
+
+	def setUp(self):
+		carlos = User.objects.create(username='carlos', email='j@j.com')
+		self.day = Day(sleepingQuality='bad', tirednessFeeling='good', date=timezone.now(), user=carlos)
+
+	def test_serializer_day(self):
+		serializer = DaySerializer(self.day)
+		print(serializer.data)
+
 
 
 
