@@ -25,11 +25,11 @@ from .serializers import UserSerializer, GroupSerializer, DaySerializer
 def indexView(request):
 	return HttpResponse('You are in index view!')
 
-class CalendarEntries(APIView):
-	def get_calendar_entries_api(self, request, year, format=None):
-		entries = Day.objects.filter(date__year=year)
-		serializer = DaySerializer(entries, many=True)
-		return Response(serializer.data)
+@api_view(['GET'])
+def get_calendar_entries_api(request, userId, year, format=None):
+	entries = Day.objects.filter(date__year=year)
+	serializer = DaySerializer(entries, many=True)
+	return JsonResponse(serializer.data[0])
 
 @api_view(['POST'])
 def insert_calendar_entries_api(request):
