@@ -2,8 +2,11 @@ Django==1.9.2
 django-cors-headers==1.1.0
 django-filter==0.12.0
 djangorestframework==3.3.2
+httpie==0.9.3
 Markdown==2.6.5
+Pygments==2.1.2
 python-dateutil==2.4.2
+requests==2.9.1
 selenium==2.51.1
 six==1.10.0
 South==1.0.2
