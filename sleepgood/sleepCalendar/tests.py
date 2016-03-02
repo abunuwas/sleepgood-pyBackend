@@ -24,11 +24,12 @@ class GetDayEntryTest(TestCase):
 
 		dateISO = '2016-02-09T23:48:14.297Z'
 		date = getDatetimeFromISO(dateISO)
-		setUpEntry = Day.objects.create(user=carlos,
+		setUpEntry = Day(user=carlos,
 			                  sleepingQuality='bad',
 			                  tirednessFeeling='good',
 			                  date=date,
 			                  )
+		setUpEntry.save()
 		self.setUpEntry = Day.objects.get(date=date)
 
 	def test_retrieve_entries(self):
@@ -80,7 +81,6 @@ class UpdateDayEntryTest(TestCase):
 			                  date=date
 			                  )
 		self.setUpEntry = Day.objects.get(date=date)
-		print('In setUp ', self.setUpEntry)
 
 	def test_update_day_entry(self):
 		data = {'_userId': 1,
@@ -90,7 +90,6 @@ class UpdateDayEntryTest(TestCase):
 				'UUID': self.setUpEntry.uuid		        
 				}
 		entry = Day.objects.get(uuid=self.setUpEntry.uuid)
-		print('Testing... ', entry)
 		dataJSON = json.dumps(data)
 		response = self.c.put('/calendar',
 			        content_type='application/json',

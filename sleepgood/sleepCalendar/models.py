@@ -52,8 +52,9 @@ class Day(models.Model):
 		         }
 
 	def save(self, *args, **kwargs):
-		uuid = generateUUID(self.user_id, self.date)
-		self.uuid = str(uuid)
+		if self.uuid == '':
+			uuid = generateUUID(self.user_id, self.date)
+			self.uuid = str(uuid)
 		super(Day, self).save(*args, **kwargs)
 
 	def __str__(self):
