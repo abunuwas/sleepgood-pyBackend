@@ -8,9 +8,10 @@ from django.contrib.auth.models import User, Group
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 
-from rest_framework import viewsets
-from rest_framework.parsers import JSONParser
-from rest_framework.renderers import JSONRenderer
+from rest_framework import viewsets, status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 import uuid
 import json
@@ -24,12 +25,23 @@ from .serializers import UserSerializer, GroupSerializer, DaySerializer
 def indexView(request):
 	return HttpResponse('You are in index view!')
 
-@csrf_exempt
-def get_calendar_entries_api(self, year):
-	entries = Day.objects.all()
-	serializer = DaySerializer(entries, many=True)
-	return JsonResponse(serializer.data[0])
+class CalendarEntries(APIView):
+	def get_calendar_entries_api(self, request, year, format=None):
+		entries = Day.objects.all()
+		serializer = DaySerializer(entries, many=True)
+		return Response(serializer.data)
 
+@api_view(['POST'])
+def insert_calendar_entries_api(request):
+	serializer = DaySerializer(data=request.data)
+	if serializer.is_valid():
+		serializer.save()
+		return Response(serializer.data, status=status.HTTP_201_CREATED)
+	return Response(serializer.errors, status=status.HTTP_400_BAD_RQUEST)
+
+@api_view(['PUT'])
+def update_calendar_entry(request):
+	pass
 
 @require_http_methods(["GET"])
 def getCalendarEntriesByYear(request, year):

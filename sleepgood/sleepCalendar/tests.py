@@ -130,6 +130,7 @@ class DeleteDayEntry(TestCase):
 class TestSerializers(TestCase):
 
 	def setUp(self):
+		self.c = Client()
 		carlos = User.objects.create(username='carlos', email='j@j.com')
 		self.day = Day.objects.create(sleepingQuality='bad', tirednessFeeling='good', date=timezone.now(), user=carlos)
 		#time.sleep(5)
@@ -140,6 +141,10 @@ class TestSerializers(TestCase):
 		print(serializer.data)
 		content = JSONRenderer().render(serializer.data)
 		print(content)
+
+	def test_get_calendar_entries(self):
+		response = self.c.get('/api/1/calendar/year/2016')
+		print(response.content)
 
 
 
