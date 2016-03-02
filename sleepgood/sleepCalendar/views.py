@@ -27,7 +27,7 @@ def getCalendarEntriesByYear(request, year):
 	Returns all calendar entries for a given year. Only accepts get methods.
 	If a different method is used in the request, returns a 405 status code. 
 	'''
-	queryset = Calendar.objects.all()
+	queryset = Day.objects.all()
 	data = {}
 	for query in queryset:
 		date = query.date
@@ -57,15 +57,6 @@ def getDatetimeFromISO(dateISO):
 	except ValueError:
 		raise SuspiciousOperation("Date format is not valid!")
 
-def generateUUID(userId, date):
-	'''
-	Returns an md5 hash using string which combines the user id plus the calendar date of the event
-	as a way to generate a unique value. Not sure yet, though, if this is the best approach...
-	'''
-	currentMilliseconds = datetime.datetime.now().timestamp()
-	uuidValue = uuid.uuid3(uuid.NAMESPACE_DNS, userId + date + str(currentMilliseconds))
-	return str(uuidValue)
-
 
 class InsertUpdateDelete(View):
 	http_method_names = ['post', 'put', 'delete']
@@ -73,19 +64,14 @@ class InsertUpdateDelete(View):
 	def post(self, request):
 		items = dict(request.POST.items())
 		date = getDatetimeFromISO(items['date'])
-		entryUUID = generateUUID(str(items['_userId']), str(date))
 		user = User.objects.get(pk=items['_userId'])
-		newEntry = Calendar(user=user,
+		newEntry = Day.objects.create(user=user,
 			                date=date,
 			                sleepingQuality=items['sleepingQuality'],
 			                tirednessFeeling=items['tirednessFeeling'],
-			                uuid=entryUUID,
-			                date_created=timezone.now(),
-			                date_modified=timezone.now()
 			                )
-		newEntry.save()
 		
-		responseData = Calendar.objects.get(uuid=entryUUID)
+		responseData = Day.objects.get(uuid=newEntry.uuid)
 		responseData = responseData.getDict()
 		returnJson = {
 						'message': 'success',
@@ -104,12 +90,12 @@ class InsertUpdateDelete(View):
 		'''
 		inputData = dict(json.loads(request.body.decode()))
 		entryUUID = inputData['UUID']
-		dbEntry = Calendar.objects.get(uuid=entryUUID)
+		dbEntry = Day.objects.get(uuid=entryUUID)
 		dbEntry.sleepingQuality = inputData['sleepingQuality']
 		dbEntry.tirednessFeeling = inputData['tirednessFeeling']
 		dbEntry.date_modified = timezone.now()
 		dbEntry.save()
-		responseData = Calendar.objects.get(uuid=entryUUID)
+		responseData = Day.objects.get(uuid=entryUUID)
 		responseData = responseData.getDict()
 		returnJson = {
 						'message': 'success',
@@ -128,7 +114,7 @@ class InsertUpdateDelete(View):
 		'''
 		requestData = dict(json.loads(request.body.decode()))
 		entryUUID = requestData['UUID']
-		dbEntry = Calendar.objects.get(uuid=entryUUID)
+		dbEntry = Day.objects.get(uuid=entryUUID)
 		dbEntry.delete()
 		returnJson = {
 						'message': 'success',
