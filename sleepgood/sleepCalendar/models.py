@@ -32,7 +32,7 @@ class Day(models.Model):
 	uuid = models.CharField(max_length=32)
 	# Verify that auto_now_add and auto_now are actually the best choices for this
 	date_created = models.DateTimeField(auto_now_add=True)
-	date_modified = models.DateTimeField(auto_now=True)
+	date_modified = models.DateTimeField()
 
 	class Meta:
 		ordering = ('date_created',)
@@ -55,6 +55,7 @@ class Day(models.Model):
 		if self.uuid == '':
 			uuid = generateUUID(self.user_id, self.date)
 			self.uuid = str(uuid)
+		self.date_modified = timezone.now()
 		super(Day, self).save(*args, **kwargs)
 
 	def __str__(self):
