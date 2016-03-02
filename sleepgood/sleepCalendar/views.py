@@ -27,7 +27,7 @@ def indexView(request):
 
 class CalendarEntries(APIView):
 	def get_calendar_entries_api(self, request, year, format=None):
-		entries = Day.objects.all()
+		entries = Day.objects.filter(date__year=year)
 		serializer = DaySerializer(entries, many=True)
 		return Response(serializer.data)
 
@@ -49,7 +49,7 @@ def getCalendarEntriesByYear(request, year):
 	Returns all calendar entries for a given year. Only accepts get methods.
 	If a different method is used in the request, returns a 405 status code. 
 	'''
-	queryset = Day.objects.all()
+	queryset = Day.objects.filter(date__year=2016)
 	data = {}
 	for query in queryset:
 		date = query.date
