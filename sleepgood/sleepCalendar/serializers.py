@@ -19,21 +19,22 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 		fields = ('url', 'name')
 
 
-class DaySerializer(serializers.Serializer):
-	user = serializers.PrimaryKeyRelatedField(read_only=True)
-	pk = serializers.IntegerField(read_only=True)
-	sleepingQuality = serializers.CharField(max_length=7)
-	tirednessFeeling = serializers.CharField(max_length=7)
-	date = serializers.DateTimeField()
-	uuid = serializers.CharField(max_length=32)
-	date_created = serializers.DateTimeField()
-	date_modified = serializers.DateTimeField()
+class DaySerializer(serializers.ModelSerializer):
+	#user = serializers.PrimaryKeyRelatedField(read_only=True)
+	#pk = serializers.IntegerField(read_only=True)
+	#sleepingQuality = serializers.CharField(max_length=7)
+	#tirednessFeeling = serializers.CharField(max_length=7)
+	#date = serializers.DateTimeField()
+	#uuid = serializers.CharField(max_length=32)
+	#date_created = serializers.DateTimeField()
+	#date_modified = serializers.DateTimeField()
 	#user = serializers.StringRelatedField()
 
 	class Meta:
 		model = Day
-		fields = ('sleepingQuality', 'tirednessFeeling', 'date', 'user', 'pk', 'uuid')
-
+		fields = ('sleepingQuality', 'tirednessFeeling', 'date', 
+			'user', 'pk', 'uuid', 'date_created', 'date_modified')
+	"""
 	def create(self, validated_data):
 		'''
 		Create and return a new 'Day' instance, given the validated data.
@@ -50,4 +51,4 @@ class DaySerializer(serializers.Serializer):
 		instance.user = validated_data.get('user', instance.user)
 		instance.save()
 		return instance
-
+	"""
