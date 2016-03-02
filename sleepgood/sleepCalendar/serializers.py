@@ -25,11 +25,14 @@ class DaySerializer(serializers.Serializer):
 	sleepingQuality = serializers.CharField(max_length=7)
 	tirednessFeeling = serializers.CharField(max_length=7)
 	date = serializers.DateTimeField()
-	user = serializers.StringRelatedField()
+	uuid = serializers.CharField(max_length=32)
+	date_created = serializers.DateTimeField()
+	date_modified = serializers.DateTimeField()
+	#user = serializers.StringRelatedField()
 
 	class Meta:
 		model = Day
-		fields = ('sleepingQuality', 'tirednessFeeling', 'date', 'user')
+		fields = ('sleepingQuality', 'tirednessFeeling', 'date', 'user', 'pk', 'uuid')
 
 	def create(self, validated_data):
 		'''

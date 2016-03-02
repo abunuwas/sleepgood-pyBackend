@@ -9,6 +9,7 @@ from rest_framework.parsers import JSONParser
 
 import datetime
 import json
+import time
 
 from .views import InsertUpdateDelete, getDatetimeFromISO
 from .models import Day
@@ -24,12 +25,12 @@ class GetDayEntryTest(TestCase):
 
 		dateISO = '2016-02-09T23:48:14.297Z'
 		date = getDatetimeFromISO(dateISO)
-		setUpEntry = Day(user=carlos,
+		setUpEntry = Day.objects.create(user=carlos,
 			                  sleepingQuality='bad',
 			                  tirednessFeeling='good',
 			                  date=date,
 			                  )
-		setUpEntry.save()
+		print('Setup: ', setUpEntry.pk)
 		self.setUpEntry = Day.objects.get(date=date)
 
 	def test_retrieve_entries(self):
@@ -131,11 +132,15 @@ class TestSerializers(TestCase):
 
 	def setUp(self):
 		carlos = User.objects.create(username='carlos', email='j@j.com')
-		self.day = Day(sleepingQuality='bad', tirednessFeeling='good', date=timezone.now(), user=carlos)
+		self.day = Day.objects.create(sleepingQuality='bad', tirednessFeeling='good', date=timezone.now(), user=carlos)
+		time.sleep(5)
+		self.day2 = Day.objects.create(sleepingQuality='regular', tirednessFeeling='bad', date=timezone.now(), user=carlos)
 
 	def test_serializer_day(self):
-		serializer = DaySerializer(self.day)
+		serializer = DaySerializer(Day.objects.all(), many=True)
 		print(serializer.data)
+		content = JSONRenderer().render(serializer.data)
+		print(content)
 
 
 
