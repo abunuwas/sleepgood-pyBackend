@@ -6,8 +6,11 @@ from django.views.generic import View
 from django.core.exceptions import SuspiciousOperation
 from django.contrib.auth.models import User, Group
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework import viewsets
+from rest_framework.parsers import JSONParser
+from rest_framework.renderers import JSONRenderer
 
 import uuid
 import json
@@ -15,11 +18,18 @@ import datetime
 import dateutil.parser
 
 from .models import Day
-from .serializers import UserSerializer, GroupSerializer
+from .serializers import UserSerializer, GroupSerializer, DaySerializer
 
 
 def indexView(request):
 	return HttpResponse('You are in index view!')
+
+@csrf_exempt
+def get_calendar_entries_api(self, year):
+	entries = Day.objects.all()
+	serializer = DaySerializer(entries, many=True)
+	return JsonResponse(serializer.data[0])
+
 
 @require_http_methods(["GET"])
 def getCalendarEntriesByYear(request, year):
@@ -61,6 +71,7 @@ def getDatetimeFromISO(dateISO):
 class InsertUpdateDelete(View):
 	http_method_names = ['post', 'put', 'delete']
 
+	@csrf_exempt
 	def post(self, request):
 		items = dict(request.POST.items())
 		date = getDatetimeFromISO(items['date'])
@@ -72,14 +83,25 @@ class InsertUpdateDelete(View):
 			                )
 		
 		responseData = Day.objects.get(uuid=newEntry.uuid)
-		responseData = responseData.getDict()
+		serializer = DaySerializer(responseData)
+		#responseData = responseData.getDict()
 		returnJson = {
 						'message': 'success',
 						'status': 200,
 						'token': '',
-						'responseData': responseData						
+						'responseData': serializer.data						
 						}
 		return JsonResponse(returnJson)
+
+		'''
+		data = JSONParser().parse(request)
+		data = dict(request.POST.items())
+		serializer = DaySerializer(data=data)
+		if serializer.is_valid():
+			serializer.save()
+			return JsonResponse(serializer.data, status=201)
+		return JsonResponse(serializer.errors, status=400)
+		'''
 
 	def put(self, request):
 		'''
@@ -89,6 +111,7 @@ class InsertUpdateDelete(View):
 		We then convert this data into a Python dictionary. 
 		'''
 		inputData = dict(json.loads(request.body.decode()))
+		#inputData = JSONParser().parse(request)
 		entryUUID = inputData['UUID']
 		dbEntry = Day.objects.get(uuid=entryUUID)
 		dbEntry.sleepingQuality = inputData['sleepingQuality']
@@ -104,7 +127,16 @@ class InsertUpdateDelete(View):
 						'responseData': responseData
 						}
 		return JsonResponse(returnJson)
-
+		'''
+		inputData = JSONParser().parse(request)
+		entryUUID = inputData.get('UUID')
+		dbEntry = Day.objects.get(uuid=entryUUID)
+		serializer = DaySerializer(dbEntry, data=inputData)
+		if serializer.is_valid():
+			serializer.save()
+			return JsonResponse(serializer.data)
+		return JsonResponse(serializer.errors, status=400)
+		'''
 	def delete(self, request):
 		'''
 		The request object cannot have a DELETE attribute, so the data that comes in a  put request
