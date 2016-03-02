@@ -90,7 +90,6 @@ class UpdateDayEntryTest(TestCase):
 				'date': '2016-02-09T23:48:14.297Z',
 				'UUID': self.setUpEntry.uuid		        
 				}
-		entry = Day.objects.get(uuid=self.setUpEntry.uuid)
 		dataJSON = json.dumps(data)
 		response = self.c.put('/calendar',
 			        content_type='application/json',
@@ -133,7 +132,7 @@ class TestSerializers(TestCase):
 	def setUp(self):
 		carlos = User.objects.create(username='carlos', email='j@j.com')
 		self.day = Day.objects.create(sleepingQuality='bad', tirednessFeeling='good', date=timezone.now(), user=carlos)
-		time.sleep(5)
+		#time.sleep(5)
 		self.day2 = Day.objects.create(sleepingQuality='regular', tirednessFeeling='bad', date=timezone.now(), user=carlos)
 
 	def test_serializer_day(self):
