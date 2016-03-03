@@ -6,10 +6,12 @@ from django.contrib.auth.models import User
 
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
+from rest_framework.test import APIRequestFactory, APIClient, force_authenticate 
 
 import datetime
 import json
 import time
+import dateutil.parser
 
 from .views import InsertUpdateDelete, getDatetimeFromISO
 from .models import Day
@@ -21,7 +23,7 @@ class GetDayEntryTest(TestCase):
 	def setUp(self):
 		self.c = Client()
 
-		carlos = User.objects.create(username='carlos')
+		carlos = User.objects.create(username='jose')
 
 		dateISO = '2016-02-09T23:48:14.297Z'
 		date = getDatetimeFromISO(dateISO)
@@ -30,7 +32,6 @@ class GetDayEntryTest(TestCase):
 			                  tirednessFeeling='good',
 			                  date=date,
 			                  )
-		print('Setup: ', setUpEntry.pk)
 		self.setUpEntry = Day.objects.get(date=date)
 
 	def test_retrieve_entries(self):
@@ -50,12 +51,14 @@ class InsertDayEntryTest(TestCase):
 		carlos = User.objects.create(username='carlos')
 
 	def test_entries_inserted_correctly(self):
-		data = {'_userId': '1',
+		data = {'user': '1',
 				'sleepingQuality': 'good',
 				'tirednessFeeling': 'bad',
 				'date': '2016-02-09T23:48:14.297Z'
 				}
-
+		request = HttpRequest()
+		request.url = '/calendar'
+		request.data = data
 		response = self.c.post('/calendar', data=data)
 
 		event = Day.objects.all()
@@ -84,20 +87,34 @@ class UpdateDayEntryTest(TestCase):
 		self.setUpEntry = Day.objects.get(date=date)
 
 	def test_update_day_entry(self):
-		data = {'_userId': 1,
+		data = {'user': 1,
 				'sleepingQuality': 'good',
 				'tirednessFeeling': 'bad',
 				'date': '2016-02-09T23:48:14.297Z',
-				'UUID': self.setUpEntry.uuid		        
+				'uuid': self.setUpEntry.uuid		        
 				}
 		dataJSON = json.dumps(data)
-		response = self.c.put('/calendar',
-			        content_type='application/json',
-			        data=dataJSON)
 
+
+		serializer = DaySerializer(data=data)
+		serializer.initial_data['date'] = dateutil.parser.parse(serializer.initial_data['date'])
+		values = {key: value for key, value in serializer.initial_data.items() if key != 'uuid'}
+		dbEntry = Day.objects.get(uuid=serializer.initial_data['uuid'])
+		newSerializer = DaySerializer(dbEntry, data=values)
+		print(newSerializer)
+		if newSerializer.is_valid():
+			print('Hey, well done!')
+		else:
+			print('Houston! We have got a problem!')
+
+
+		response = self.c.put('/calendar', 
+						content_type='application/json', 
+						data=dataJSON)
 		dbEntry = Day.objects.get(uuid=self.setUpEntry.uuid)
 		self.assertEqual(dbEntry.sleepingQuality, 'good')
 		self.assertEqual(dbEntry.tirednessFeeling, 'bad')
+
 
 class DeleteDayEntry(TestCase):
 
@@ -116,14 +133,16 @@ class DeleteDayEntry(TestCase):
 		self.setUpEntry = Day.objects.get(date=date)
 
 	def test_delete_day_entry(self):
-		request = HttpRequest()
-		data = {'_userId': 1,
-				'UUID': self.setUpEntry.uuid		        
+		data = {'user': 1,
+				'uuid': self.setUpEntry.uuid		        
 				}
 		dataJSON = json.dumps(data)
+		request = HttpRequest()
+		request.url = '/calendar'
+		request.data = dataJSON
 		response = self.c.delete('/calendar',
-			        content_type='application/json',
-			        data=dataJSON)
+						content_type='application/json',
+						data=dataJSON)
 		
 		self.assertEqual(len(Day.objects.all()), 0)
 
@@ -138,13 +157,13 @@ class TestSerializers(TestCase):
 
 	def test_serializer_day(self):
 		serializer = DaySerializer(Day.objects.all(), many=True)
-		print(serializer.data)
 		content = JSONRenderer().render(serializer.data)
-		print(content)
 
 	def test_get_calendar_entries(self):
 		response = self.c.get('/api/1/calendar/year/2016')
-		print(response.content)
+
+
+
 
 
 
