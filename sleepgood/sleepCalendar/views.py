@@ -25,23 +25,43 @@ from .serializers import UserSerializer, GroupSerializer, DaySerializer
 def indexView(request):
 	return HttpResponse('You are in index view!')
 
+#######################################################################
+
+
 @api_view(['GET'])
-def get_calendar_entries_api(request, userId, year, format=None):
+def get_calendar_entries_api(request, year, format=None):
 	entries = Day.objects.filter(date__year=year)
 	serializer = DaySerializer(entries, many=True)
 	return JsonResponse(serializer.data[0])
 
-@api_view(['POST'])
-def insert_calendar_entries_api(request):
-	serializer = DaySerializer(data=request.data)
-	if serializer.is_valid():
-		serializer.save()
-		return Response(serializer.data, status=status.HTTP_201_CREATED)
-	return Response(serializer.errors, status=status.HTTP_400_BAD_RQUEST)
+class InsertUpdateDeleteAPI(APIView):
+	def post(self, request):
+		serializer = DaySerializer(data=request.data)
+		serializer.initial_data['date'] = dateutil.parser.parse(serializer.initial_data['date'])
+		if serializer.is_valid():
+			serializer.save()
+			return Response(serializer.data, status=status.HTTP_201_CREATED)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_RQUEST)
 
-@api_view(['PUT'])
-def update_calendar_entry(request):
-	pass
+	def put(self, request):
+		serializer = DaySerializer(data=request.data)
+		dbEntry = Day.objects.get(uuid=serializer.initial_data['uuid'])
+		serializer.initial_data['date'] = dateutil.parser.parse(serializer.initial_data['date'])
+		values = {key: value for key, value in serializer.initial_data.items() if key != 'uuid'}
+		newSerializer = DaySerializer(dbEntry, data=values)
+		if newSerializer.is_valid():
+			newSerializer.save()
+			return Response(newSerializer.data)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+	def delete(self, request):
+		data = DaySerializer(data=request.data)
+		dbEntry = Day.objects.get(uuid=data.initial_data['uuid'])
+		dbEntry.delete()
+		return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+#############################################################################
 
 @require_http_methods(["GET"])
 def getCalendarEntriesByYear(request, year):
@@ -53,7 +73,7 @@ def getCalendarEntriesByYear(request, year):
 	data = {}
 	for query in queryset:
 		date = query.date
-		date = '{}-{:02d}-{}'.format(date.year, date.month, date.day)
+		date = '{}-{:02d}-{:02d}'.format(date.year, date.month, date.day)
 		data[date] = {'id': query.pk,
 		                    'sleepingQuality': query.sleepingQuality,
 		                    'tirednessFeeling': query.tirednessFeeling,
@@ -61,7 +81,7 @@ def getCalendarEntriesByYear(request, year):
 		                    'date': str(query.date),
 		                    'uuid': query.uuid}
 	data = json.dumps(data)
-	return HttpResponse(data, content_type='application/json')
+	return JsonResponse(data)
 
 
 def getDatetimeFromISO(dateISO):
@@ -87,7 +107,7 @@ class InsertUpdateDelete(View):
 	def post(self, request):
 		items = dict(request.POST.items())
 		date = getDatetimeFromISO(items['date'])
-		user = User.objects.get(pk=items['_userId'])
+		user = User.objects.get(pk=items['userId'])
 		newEntry = Day.objects.create(user=user,
 			                date=date,
 			                sleepingQuality=items['sleepingQuality'],
@@ -166,6 +186,10 @@ class InsertUpdateDelete(View):
 						'token': '',
 						}
 		return JsonResponse(returnJson)
+
+
+
+#######################################################################
 
 class UserViewSet(viewsets.ModelViewSet):
 	"""
