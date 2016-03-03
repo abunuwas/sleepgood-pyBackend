@@ -34,13 +34,14 @@ class DaySerializer(serializers.ModelSerializer):
 		model = Day
 		fields = ('sleepingQuality', 'tirednessFeeling', 'date', 
 			'user')
-	"""
+
 	def create(self, validated_data):
 		'''
 		Create and return a new 'Day' instance, given the validated data.
 		'''
 		return Day.objects.create(**validated_data)
 
+	"""
 	def update(self, instance, validated_data):
 		'''
 		Update and return an existing 'Day' instance, given validated data.

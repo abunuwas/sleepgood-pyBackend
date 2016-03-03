@@ -8,7 +8,7 @@ from django.contrib.auth.models import User, Group
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, mixins, generics
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -33,6 +33,15 @@ def get_calendar_entries_api(request, year, format=None):
 	entries = Day.objects.filter(date__year=year)
 	serializer = DaySerializer(entries, many=True)
 	return JsonResponse(serializer.data[0])
+
+class GetCalendarEntries(mixins.ListModelMixin,
+							mixins.CreateModelMixin,
+							generics.GenericAPIView):
+	queryset = Day.objects.all()
+	serializer_class = DaySerializer
+
+	def get(self, request, *args, **kwargs):
+		return self.list(request*args, **kwargs)
 
 class InsertUpdateDeleteAPI(APIView):
 	def post(self, request):
