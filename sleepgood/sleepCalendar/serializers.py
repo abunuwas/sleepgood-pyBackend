@@ -33,7 +33,7 @@ class DaySerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Day
 		fields = ('sleepingQuality', 'tirednessFeeling', 'date', 
-			'user', 'pk', 'uuid', 'date_created', 'date_modified')
+			'user')
 	"""
 	def create(self, validated_data):
 		'''
