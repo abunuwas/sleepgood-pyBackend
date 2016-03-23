@@ -101,15 +101,18 @@ class InsertUpdateDelete(View):
 		request and decode it from bytes into strings, and read its data with the json.loads function.
 		We then convert this data into a Python dictionary. 
 		'''
-		inputData = dict(json.loads(request.body.decode()))
-		entryUUID = inputData['UUID']
+		inputData = dict(request.body.decode())
+		entryUUID = inputData['uuid']
+		print(entryUUID)
 		dbEntry = Calendar.objects.get(uuid=entryUUID)
+		print(dbEbtry)
 		dbEntry.sleepingQuality = inputData['sleepingQuality']
 		dbEntry.tirednessFeeling = inputData['tirednessFeeling']
 		dbEntry.date_modified = timezone.now()
 		dbEntry.save()
 		responseData = Calendar.objects.get(uuid=entryUUID)
 		responseData = responseData.getDict()
+		print(responseData)
 		returnJson = {
 						'message': 'success',
 						'status': 200,
