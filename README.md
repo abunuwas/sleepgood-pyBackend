@@ -9,3 +9,16 @@
 
 * load virtual env: source venv/bin/activate 
 * start server: python manage.py runserver 8000
+
+## TODO 
+
+### First milestone ()
+
+* PUT update
+* DELETE delete
+
+## Second Milestone
+
+* deploy to a server!
+* Postgress
+* allow user based calendar
