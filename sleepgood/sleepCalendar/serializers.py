@@ -5,12 +5,12 @@ from .models import Day
 
 
 # Serializers define the API representation
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-	days = serializers.StringRelatedField()
+class UserSerializer(serializers.ModelSerializer):
+	days = serializers.PrimaryKeyRelatedField(many=True, queryset=Day.objects.all())
 
 	class Meta:
 		model = User
-		fields = ('url', 'username', 'email', 'is_staff', 'days')
+		fields = ('id', 'username', 'email', 'days')
 
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
