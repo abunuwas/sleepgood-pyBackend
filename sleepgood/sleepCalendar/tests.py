@@ -36,6 +36,7 @@ class GetDayEntryTest(TestCase):
 
 	def test_retrieve_entries(self):
 		response = self.c.get('/calendar/year/2016')
+		print('Respone from get ', response.content)
 		self.assertEqual(response.status_code, 200)
 
 	def test_retrieve_wrong_method(self):
