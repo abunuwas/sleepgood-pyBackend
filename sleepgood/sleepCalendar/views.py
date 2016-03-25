@@ -35,13 +35,30 @@ def get_calendar_entries_api(request, year, format=None):
 	return JsonResponse(serializer.data[0])
 
 class GetCalendarEntries(mixins.ListModelMixin,
+							mixins.RetrieveModelMixin,
 							mixins.CreateModelMixin,
+							mixins.UpdateModelMixin,
+							mixins.DestroyModelMixin,
 							generics.GenericAPIView):
 	queryset = Day.objects.all()
+	lookup_field = 'date__year'
 	serializer_class = DaySerializer
 
+	def list(self, request, *args, **kwargs):
+	    queryset = self.filter_queryset(self.get_queryset())
+	    serializer = self.get_serializer(queryset, many=True)
+	    return_data = {}
+	    for result in serializer.data:
+	    	date = result['date'][:10]
+	    	result['userId'] = result['user']
+	    	del result['user']
+	    	return_data[date] = result	    
+	    return Response(return_data)
+	    #return Response(serializer.data[0])
+
 	def get(self, request, *args, **kwargs):
-		return self.list(request*args, **kwargs)
+		result_set = self.list(request, *args, **kwargs)
+		return result_set
 
 class InsertUpdateDeleteAPI(APIView):
 	def post(self, request):
