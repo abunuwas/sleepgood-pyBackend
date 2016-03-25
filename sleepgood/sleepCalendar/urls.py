@@ -8,7 +8,7 @@ app_name = 'sleepCalendar'
 urlpatterns = [
     url('^$', views.indexView, name='index'),
     url('^calendar$', views.InsertUpdateDeleteAPI.as_view(), name='insertCalendarEntry'), 
-    url('calendar/year/(?P<year>\d+)$', views.GetCalendarEntries.as_view(), name='getCalendarEntriesByYear'),
+    url('calendar/year/(?P<date__year>\d+)$', views.GetCalendarEntries.as_view(), name='getCalendarEntriesByYear'),
     #url('^(?P<userId>\d+)/calendar/update$', views.InsertUpdate.as_view(), name='updateCalendarEntry'),
 
     ]
