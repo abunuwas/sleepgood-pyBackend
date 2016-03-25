@@ -6,6 +6,7 @@ from django.views.generic import View
 from django.core.exceptions import SuspiciousOperation
 from django.contrib.auth.models import User
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 
 import uuid
 import json
@@ -28,7 +29,7 @@ def getCalendarEntriesByYear(request, year):
 	data = {}
 	for query in queryset:
 		date = query.date
-		date = '{}-{:02d}-{}'.format(date.year, date.month, date.day)
+		date = '{}-{:02d}-{:02d}'.format(date.year, date.month, date.day)
 		data[date] = {'id': query.pk,
 		                    'sleepingQuality': query.sleepingQuality,
 		                    'tirednessFeeling': query.tirednessFeeling,
@@ -66,12 +67,13 @@ def generateUUID(userId, date):
 
 class InsertUpdateDelete(View):
 	http_method_names = ['post', 'put', 'delete']
-
+ 
+	@csrf_exempt
 	def post(self, request):
 		items = dict(request.POST.items())
 		date = getDatetimeFromISO(items['date'])
-		entryUUID = generateUUID(str(items['_userId']), str(date))
-		user = User.objects.get(pk=items['_userId'])
+		entryUUID = generateUUID(str(items['userId']), str(date))
+		user = User.objects.get(pk=items['userId'])
 		newEntry = Calendar(user=user,
 			                date=date,
 			                sleepingQuality=items['sleepingQuality'],
@@ -99,15 +101,18 @@ class InsertUpdateDelete(View):
 		request and decode it from bytes into strings, and read its data with the json.loads function.
 		We then convert this data into a Python dictionary. 
 		'''
-		inputData = dict(json.loads(request.body.decode()))
-		entryUUID = inputData['UUID']
+		inputData = dict(request.body.decode())
+		entryUUID = inputData['uuid']
+		print(entryUUID)
 		dbEntry = Calendar.objects.get(uuid=entryUUID)
+		print(dbEbtry)
 		dbEntry.sleepingQuality = inputData['sleepingQuality']
 		dbEntry.tirednessFeeling = inputData['tirednessFeeling']
 		dbEntry.date_modified = timezone.now()
 		dbEntry.save()
 		responseData = Calendar.objects.get(uuid=entryUUID)
 		responseData = responseData.getDict()
+		print(responseData)
 		returnJson = {
 						'message': 'success',
 						'status': 200,
