@@ -17,6 +17,8 @@ def generateUUID(userId, date):
 
 
 class Day(models.Model):
+	# Specify which values are available for the sleepingQuality and
+	# the tirednessFeeling attributes. This is useful for validation. 
 	good = 'good'
 	bad = 'bad'
 	regular = 'regular'
@@ -25,6 +27,7 @@ class Day(models.Model):
 		(bad, 'bad'), 
 		(regular, 'regular')
 		)
+
 	sleepingQuality = models.CharField(max_length=7, choices=choices)
 	tirednessFeeling = models.CharField(max_length=7, choices=choices)
 	date = models.DateTimeField()
@@ -35,6 +38,7 @@ class Day(models.Model):
 	date_modified = models.DateTimeField()
 
 	class Meta:
+		# Order results by date of creation
 		ordering = ('date_created',)
 
 	def getDict(self):
@@ -52,6 +56,11 @@ class Day(models.Model):
 		         }
 
 	def save(self, *args, **kwargs):
+		'''
+		Customizes the save method for this model. It checks whether a uuid value has already been assigned
+		to the entry, and if not (meaning it's a new entry), creates one for it. It also updates the date_modified
+		field with every call to the save method, i.e. every time a change is made on the entry. 
+		'''
 		if self.uuid == '':
 			uuid = generateUUID(self.user_id, self.date)
 			self.uuid = str(uuid)
@@ -59,6 +68,7 @@ class Day(models.Model):
 		super(Day, self).save(*args, **kwargs)
 
 	def __str__(self):
+		'''Returns a string representation of the object following its constructor syntax'''
 		return 'Calendar(user={}, date={}, sleepingQuality={}, tirednessFeeling={}, uuid={})'.format(
 			self.user, self.date, self.sleepingQuality, self.tirednessFeeling, self.uuid)
 
