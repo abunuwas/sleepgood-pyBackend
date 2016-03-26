@@ -8,7 +8,7 @@ from django.contrib.auth.models import User, Group
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 
-from rest_framework import viewsets, status, mixins, generics
+from rest_framework import viewsets, status, mixins, generics, permissions
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -20,6 +20,7 @@ import dateutil.parser
 
 from .models import Day
 from .serializers import UserSerializer, GroupSerializer, DaySerializer
+from .permissions import IsOwnerOrReadOnly
 
 
 def indexView(request):
@@ -39,6 +40,8 @@ class GetCalendarEntries(mixins.ListModelMixin,
 	queryset = Day.objects.all()
 	lookup_field = 'date__year'
 	serializer_class = DaySerializer
+	permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+						  IsOwnerOrReadOnly,)
 
 	def list(self, request, *args, **kwargs):
 	    queryset = self.filter_queryset(self.get_queryset())
@@ -61,6 +64,10 @@ class InsertUpdateDeleteAPI(mixins.RetrieveModelMixin,
 							mixins.UpdateModelMixin,
 							mixins.DestroyModelMixin,
 							generics.GenericAPIView):
+	serializer_class = DaySerializer
+	permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+						  IsOwnerOrReadOnly,)
+	
 	def create(self, request, *args, **kwargs):
 		serializer = DaySerializer(data=request.data)
 		serializer.initial_data['date'] = dateutil.parser.parse(serializer.initial_data['date'])
@@ -268,9 +275,5 @@ class GroupViewSet(viewsets.ModelViewSet):
 	'''
 	queryset = Group.objects.all()
 	serializer_class = GroupSerializer
-
-
-
-
 
 
