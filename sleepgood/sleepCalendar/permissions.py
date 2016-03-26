@@ -1,6 +1,6 @@
 from rest_framework import permissions
 
-class IsOwnerOrReadOnly(permissions.BasePermissions):
+class IsOwnerOrReadOnly(permissions.BasePermission):
 	'''
 	Custom permission to only allow owners of an object to edit it.
 	'''
@@ -12,4 +12,4 @@ class IsOwnerOrReadOnly(permissions.BasePermissions):
 			return True
 
 		# Write permissions are only allowed to the owner of the data.
-		return obj.owner = request.user
+		return obj.owner == request.user
