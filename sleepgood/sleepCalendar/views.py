@@ -35,11 +35,7 @@ def get_calendar_entries_api(request, year, format=None):
 	return JsonResponse(serializer.data[0])
 
 class GetCalendarEntries(mixins.ListModelMixin,
-							mixins.RetrieveModelMixin,
-							mixins.CreateModelMixin,
-							mixins.UpdateModelMixin,
-							mixins.DestroyModelMixin,
-							generics.GenericAPIView):
+						generics.GenericAPIView):
 	queryset = Day.objects.all()
 	lookup_field = 'date__year'
 	serializer_class = DaySerializer
@@ -60,6 +56,48 @@ class GetCalendarEntries(mixins.ListModelMixin,
 		result_set = self.list(request, *args, **kwargs)
 		return result_set
 
+class InsertUpdateDeleteAPI(mixins.RetrieveModelMixin,
+							mixins.CreateModelMixin,
+							mixins.UpdateModelMixin,
+							mixins.DestroyModelMixin,
+							generics.GenericAPIView):
+	def create(self, request, *args, **kwargs):
+		serializer = DaySerializer(data=request.data)
+		serializer.initial_data['date'] = dateutil.parser.parse(serializer.initial_data['date'])
+		serializer.is_valid(raise_exception=True)
+		self.perform_create(serializer)
+		headers = self.get_success_headers(serializer.data)
+		return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+	def perform_create(self, serializer):
+		serializer.save(owner=self.request.user)
+
+	def update(self, request, *args, **kwargs):
+		serializer = DaySerializer(data=request.data)
+		dbEntry = Day.objects.get(uuid=serializer.initial_data['uuid'])
+		serializer.initial_data['date'] = dateutil.parser.parse(serializer.initial_data['date'])
+		values = {key: value for key, value in serializer.initial_data.items() if key != 'uuid'}
+		newSerializer = DaySerializer(dbEntry, data=values)
+		newSerializer.is_valid(raise_exception=True)
+		self.perform_update(serializer)
+		return Response(serializer.data)
+
+	def destroy(self, request, *args, **kwargs):
+		data = DaySerializer(data=request.data)
+		dbEntry = Day.objects.get(uuid=data.initial_data['uuid'])
+		self.perform_destroy(dbEntry)
+		return Response(status=status.HTTP_204_NO_CONTENT)
+
+	def post(self, request, *args, **kwargs):
+		return self.create(request, *args, **kwargs)
+
+	def put(self, request, *args, **kwargs):
+		return self.update(request, *args, **kwargs)
+
+	def delete(self, request, *args, **kwargs):
+		return self.destroy(request, *args, **kwargs)
+
+'''
 class InsertUpdateDeleteAPI(APIView):
 	def post(self, request):
 		serializer = DaySerializer(data=request.data)
@@ -86,7 +124,7 @@ class InsertUpdateDeleteAPI(APIView):
 		dbEntry.delete()
 		return Response(status=status.HTTP_204_NO_CONTENT)
 
-
+'''
 #############################################################################
 
 @require_http_methods(["GET"])
