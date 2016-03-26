@@ -1,7 +1,7 @@
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 from rest_framework import serializers
 
-from .models import Day
+from .models import Day, User
 
 
 # Serializers define the API representation
@@ -29,12 +29,11 @@ class DaySerializer(serializers.ModelSerializer):
 	#date_created = serializers.DateTimeField()
 	#date_modified = serializers.DateTimeField()
 	#user = serializers.StringRelatedField()
-	owner = serializers.ReadOnlyField(source='owner.username')
+	uuid = serializers.ReadOnlyField()
 
 	class Meta:
 		model = Day
-		fields = ('sleepingQuality', 'tirednessFeeling', 'date', 
-			'user', 'uuid', 'owner')
+		fields = ('sleepingQuality', 'tirednessFeeling', 'date', 'user', 'uuid')
 
 	def create(self, validated_data):
 		'''
