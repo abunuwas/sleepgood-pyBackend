@@ -44,15 +44,20 @@ class GetCalendarEntries(mixins.ListModelMixin,
 						  IsOwnerOrReadOnly,)
 
 	def list(self, request, *args, **kwargs):
-	    queryset = self.filter_queryset(self.get_queryset())
-	    serializer = self.get_serializer(queryset, many=True)
-	    return_data = {}
-	    for result in serializer.data:
-	    	date = result['date'][:10]
-	    	result['userId'] = result['user']
-	    	del result['user']
-	    	return_data[date] = result	    
-	    return Response(return_data)
+		year = kwargs['date__year']
+		user = request.user
+		userId = user.id
+		queryset = Day.objects.filter(user=userId, date__year=year)
+		serializer = self.get_serializer(queryset, many=True)
+		return_data = {}
+		for result in serializer.data:
+			date = result['date'][:10]
+			# I think that the user id is actually not necessary at all, since it's included
+			# in the authentication. 
+			result['userId'] = userId
+			#del result['user']
+			return_data[date] = result	    
+		return Response(return_data)
 	    #return Response(serializer.data[0])
 
 	def get(self, request, *args, **kwargs):
@@ -67,23 +72,32 @@ class InsertUpdateDeleteAPI(mixins.RetrieveModelMixin,
 	serializer_class = DaySerializer
 	permission_classes = (permissions.IsAuthenticatedOrReadOnly,
 						  IsOwnerOrReadOnly,)
-	
+
 	def create(self, request, *args, **kwargs):
+		# SUPER IMPORTANT! CHECK FIRST THAT THE DAY HASN'T ALREADY BEEN SAVED IN THE DB.
+		# THIS CHECK SHOULD PROBABLY DONE IN THE MODELS MODULE!!!!!!!!!
 		serializer = DaySerializer(data=request.data)
-		serializer.initial_data['date'] = dateutil.parser.parse(serializer.initial_data['date'])
+		#serializer.initial_data['date'] = dateutil.parser.parse(serializer.initial_data['date'])
+		values = {key: value for key, value in serializer.initial_data.items()}
+		values['user'] = self.request.user
 		serializer.is_valid(raise_exception=True)
 		self.perform_create(serializer)
 		headers = self.get_success_headers(serializer.data)
 		return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 	def perform_create(self, serializer):
-		serializer.save(owner=self.request.user)
+		serializer.save(user=self.request.user)
 
 	def update(self, request, *args, **kwargs):
 		serializer = DaySerializer(data=request.data)
-		dbEntry = Day.objects.get(uuid=serializer.initial_data['uuid'])
-		serializer.initial_data['date'] = dateutil.parser.parse(serializer.initial_data['date'])
-		values = {key: value for key, value in serializer.initial_data.items() if key != 'uuid'}
+		uuid = serializer.initial_data['uuid']
+		#uuid = request.data.get('uuid', False)
+		dbEntry = Day.objects.get(uuid=uuid)
+		#serializer.initial_data['date'] = dateutil.parser.parse(serializer.initial_data['date'])
+		serializer.is_valid(raise_exception=True)
+		values = {key: value for key, value in serializer.validated_data.items() if key != 'uuid'}
+		values['user'] = request.user.pk
+		#values['date'] = dbEntry.date
 		newSerializer = DaySerializer(dbEntry, data=values)
 		newSerializer.is_valid(raise_exception=True)
 		self.perform_update(serializer)
