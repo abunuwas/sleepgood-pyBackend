@@ -29,11 +29,12 @@ class DaySerializer(serializers.ModelSerializer):
 	#date_created = serializers.DateTimeField()
 	#date_modified = serializers.DateTimeField()
 	#user = serializers.StringRelatedField()
+	owner = serializers.ReadOnlyField(source='owner.username')
 
 	class Meta:
 		model = Day
 		fields = ('sleepingQuality', 'tirednessFeeling', 'date', 
-			'user', 'uuid')
+			'user', 'uuid', 'owner')
 
 	def create(self, validated_data):
 		'''
