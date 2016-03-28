@@ -13,7 +13,6 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-import uuid
 import json
 import datetime
 import dateutil.parser
@@ -54,7 +53,6 @@ class GetCalendarEntries(mixins.ListModelMixin,
 			date = result['date'][:10]
 			# I think that the user id is actually not necessary at all, since it's included
 			# in the authentication. 
-			result['userId'] = userId
 			#del result['user']
 			return_data[date] = result	    
 		return Response(return_data)
@@ -89,14 +87,21 @@ class InsertUpdateDeleteAPI(mixins.RetrieveModelMixin,
 		serializer.save(user=self.request.user)
 
 	def update(self, request, *args, **kwargs):
-		serializer = DaySerializer(data=request.data)
-		uuid = serializer.initial_data['uuid']
-		#uuid = request.data.get('uuid', False)
-		dbEntry = Day.objects.get(uuid=uuid)
+		#serializer = DaySerializer(data=request.data)
+		#uuid = serializer.initial_data['uuid']
+		values = {key: value for key, value in self.request.data.items()}
+		dbEntry = Day.objects.get(uuid=values['uuid'])
+		values['user'] = self.request.user.pk
+		values['date'] = dbEntry.date
+		serializer_values = dbEntry.getDict()
+		serializer_values['user'] = self.request.user.pk
+		serializer = DaySerializer(data=serializer_values)
+		#values = {key: value for key, value in serializer.initial_data.items() if key != 'uuid'}
 		#serializer.initial_data['date'] = dateutil.parser.parse(serializer.initial_data['date'])
+		#serializer.initial_data['date'] = dbEntry.date
+		#serializer.initial_data['user'] = self.request.user.pk
 		serializer.is_valid(raise_exception=True)
-		values = {key: value for key, value in serializer.validated_data.items() if key != 'uuid'}
-		values['user'] = request.user.pk
+		#values['user'] = request.user.pk
 		#values['date'] = dbEntry.date
 		newSerializer = DaySerializer(dbEntry, data=values)
 		newSerializer.is_valid(raise_exception=True)
@@ -106,8 +111,11 @@ class InsertUpdateDeleteAPI(mixins.RetrieveModelMixin,
 	def destroy(self, request, *args, **kwargs):
 		data = DaySerializer(data=request.data)
 		dbEntry = Day.objects.get(uuid=data.initial_data['uuid'])
+		serializer = DaySerializer(data=dbEntry.getDict())
+		serializer['user'] = self.request.user
+		serializer.is_valid(raise_exception=True)
 		self.perform_destroy(dbEntry)
-		return Response(status=status.HTTP_204_NO_CONTENT)
+		return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
 
 	def post(self, request, *args, **kwargs):
 		return self.create(request, *args, **kwargs)
