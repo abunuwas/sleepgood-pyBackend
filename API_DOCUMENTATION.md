@@ -1,5 +1,6 @@
 
 GET:
+- url: /calendar/year/<year_value: digit>
 - Requires user + password in headers. Uses BASIC AUTH => must be changed later to OAUTH! 
 - Returns calendar data for the registered user. User is implicitly taken from the request headers. 
 - Returned data comes in a JSON with the following structure:
@@ -14,6 +15,7 @@ GET:
 	};  
 
 POST:
+- url: /calendar
 - Requires user + password in headers to create user-specific new data. BASIC AUTH. 
 - Expects the following values in the payload:
 	- <tirednessFeeling>: good | bad | regular
@@ -22,6 +24,7 @@ POST:
 - Response includes a JSON which includes the newly created data with 201 status code. 
 
 PUT:
+- url: /calendar
 - Requires user + password in headers since data can only be modified by users who own it. BASIC AUTH. 
 - Expects the following values in the payload:
 	- <tirednessFeeling>: good | bad | regular
@@ -31,4 +34,8 @@ PUT:
 
 
 DELETE:
-- 
+- url: /calendar
+- Requires user + password in headers since data can only be deleted by users who own it. BASIC AUTH. 
+- Expects the following values:
+	- <uuid>: uuid value. 
+- Response includes a JSON which includes the updated data with 200 status code. 
