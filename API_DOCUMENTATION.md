@@ -16,6 +16,13 @@ path: /calendar/year/2016
 
 POST:
 path: /calendar
+payload (form data)
+
+date: isoDate ex: 2016-03-27T22:00:00.000Z
+userId: int ex 1
+sleepingQuality:[good | regular | bad]
+tirednessFeeling:[good | regular | bad]
+
 - Requires base64 (user + password) in headers to create user-specific new data. BASIC AUTH. 
 - Expects the following values in the payload:
 	- <tirednessFeeling>: good | bad | regular
@@ -25,6 +32,14 @@ path: /calendar
 
 PUT:
 path: /calendar
+paylod (form data)
+
+date: isoDate ex: 2016-03-27T22:00:00.000Z
+userId: int ex 1
+uuid: hasg md5
+sleepingQuality:[good | regular | bad]
+tirednessFeeling:[good | regular | bad]
+
 - Requires base64 (user + password) in headers since data can only be modified by users who own it. BASIC AUTH. 
 - Expects the following values in the payload:
 	- <tirednessFeeling>: good | bad | regular
