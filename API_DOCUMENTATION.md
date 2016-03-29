@@ -1,7 +1,7 @@
 
 GET:
-- url: /calendar/year/<year_value: digit>
-- Requires user + password in headers. Uses BASIC AUTH => must be changed later to OAUTH! 
+- path: /calendar/year/<year_value: digit>
+- Requires a base64 (user + password) in headers. Uses BASIC AUTH => must be changed later to OAUTH! 
 - Returns calendar data for the registered user. User is implicitly taken from the request headers. 
 - Returned data comes in a JSON with the following structure:
 	{
@@ -14,28 +14,30 @@ GET:
 		}
 	};  
 
+
 POST:
-- url: /calendar
-- Requires user + password in headers to create user-specific new data. BASIC AUTH. 
+- path: /calendar payload (form data)
+- Requires base64 (user + password) in headers to create user-specific new data. BASIC AUTH. 
 - Expects the following values in the payload:
-	- <tirednessFeeling>: good | bad | regular
-	- <sleepingQuality>: good | bad | regular
-	- <date>: ISO format. 
+	- <tirednessFeeling>: [good | regular | bad]
+	- <sleepingQuality>: [good | regular | bad]
+	- <date>: ISO format (isoDate), e.g.: 2016-03-27T22:00:00.000Z. 
 - Response includes a JSON which includes the newly created data with 201 status code. 
 
+
 PUT:
-- url: /calendar
-- Requires user + password in headers since data can only be modified by users who own it. BASIC AUTH. 
+- path: /calendar paylod (form data)
+- Requires base64 (user + password) in headers since data can only be modified by users who own it. BASIC AUTH. 
 - Expects the following values in the payload:
-	- <tirednessFeeling>: good | bad | regular
-	- <sleepingQuality>: good | bad | regular
+	- <tirednessFeeling>: [good | regular | bad]
+	- <sleepingQuality>: [good | regular | bad]
 	- <uuid>: uuid value. 
 - Response includes a JSON which includes the updated data with 200 status code. 
 
 
 DELETE:
-- url: /calendar
+- path: /calendar payload (form data)
 - Requires user + password in headers since data can only be deleted by users who own it. BASIC AUTH. 
 - Expects the following values:
 	- <uuid>: uuid value. 
-- Response includes a JSON which includes the updated data with 200 status code. 
+- Response includes a JSON which includes the updated data with 200 status code. Maybe should return an empty response with status code 204? 

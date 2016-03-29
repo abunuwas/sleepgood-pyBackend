@@ -19,6 +19,7 @@
 
 ## Second Milestone
 
+* Create script for laoding test values (user carlos)
 * deploy to a server!
 * Postgress
 * allow user based calendar
