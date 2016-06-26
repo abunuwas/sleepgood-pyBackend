@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('sleepingQuality', models.CharField(choices=[('good', 'good'), ('bad', 'bad'), ('regular', 'regular')], max_length=7)),
                 ('tirednessFeeling', models.CharField(choices=[('good', 'good'), ('bad', 'bad'), ('regular', 'regular')], max_length=7)),
                 ('day', models.DateTimeField()),
-                ('uuid', models.UUIDField(default=uuid.uuid3, editable=False)),
+                ('uuid', models.UUIDField(default=uuid.uuid3(uuid.NAMESPACE_DNS, 'name'), editable=False)),
                 ('date_created', models.DateTimeField(auto_now_add=True)),
                 ('date_modified', models.DateTimeField(auto_now=True)),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
