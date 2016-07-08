@@ -8,7 +8,8 @@ from . import views
 app_name = 'sleepCalendar'
 urlpatterns = [
     url('^$', views.indexView, name='index'),
-    url('^calendar$', views.InsertUpdateDeleteAPI.as_view(), name='insertCalendarEntry'), 
+    url('^calendar$', views.InsertUpdateDeleteAPI.as_view(), name='insertCalendarEntry'),
+    url('calendar/uuid/(?P<uuid>[-\w]+)$', views.GetCalendarEntry.as_view(), name='getCalendarEntryByUuid'),
     url('calendar/year/(?P<date__year>\d+)$', views.GetCalendarEntries.as_view(), name='getCalendarEntriesByYear'),
     #url('^1/calendar$', csrf_exempt(views.InsertUpdateDelete.as_view()), name='insertCalendarEntry'), 
     #url('calendar/year/(?P<year>\d+)$', views.getCalendarEntriesByYear, name='getCalendarEntriesByYear'),

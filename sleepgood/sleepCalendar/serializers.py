@@ -19,6 +19,12 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 		fields = ('url', 'name')
 
 
+class EntrySerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = Day
+		fields = ('sleepingQuality', 'tirednessFeeling', 'date', 'user', 'uuid')
+
 class DaySerializer(serializers.ModelSerializer):
 	#user = serializers.PrimaryKeyRelatedField(read_only=True)
 	#pk = serializers.IntegerField(read_only=True)
