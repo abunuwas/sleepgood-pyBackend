@@ -23,9 +23,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '%s+pe5$g$47hf!gv()^h^y&98_!%l-9_0au-#4*k&&pz22@!(^'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -90,8 +90,12 @@ WSGI_APPLICATION = 'sleepgood.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'sleepgood',
+        'USER': 'marmot',
+        'PASSWORD': 'sleepgood',
+        'HOST': 'localhost',
+        'PORT': ''
     }
 }
 
@@ -136,4 +140,5 @@ CORS_ORIGIN_ALLOW_ALL = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_URL = os.path.join(BASE_DIR, 'static/')
+STATIC_ROOT = '/opt/sleepgood-pyBackend/static/'
+

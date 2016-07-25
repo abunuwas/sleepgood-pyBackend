@@ -19,7 +19,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Day',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True, 
+primary_key=True, serialize=False, verbose_name='ID')),
                 ('sleepingQuality', models.CharField(choices=[('good', 'good'), ('bad', 'bad'), ('regular', 'regular')], max_length=7)),
                 ('tirednessFeeling', models.CharField(choices=[('good', 'good'), ('bad', 'bad'), ('regular', 'regular')], max_length=7)),
                 ('day', models.DateTimeField()),

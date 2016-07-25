@@ -6,7 +6,7 @@ import uuid
 import datetime
 
 
-def generateUUID(userId, date):
+def generateUUID(userId=None, date=None):
 	'''
 	Returns an md5 hash using string which combines the user id plus the calendar date of the event
 	as a way to generate a unique value. Not sure yet, though, if this is the best approach...
@@ -28,6 +28,7 @@ class Day(models.Model):
 		(regular, 'regular')
 		)
 
+	id = models.IntegerField(primary_key=True)
 	sleepingQuality = models.CharField(max_length=7, choices=choices)
 	tirednessFeeling = models.CharField(max_length=7, choices=choices)
 	date = models.DateTimeField()
