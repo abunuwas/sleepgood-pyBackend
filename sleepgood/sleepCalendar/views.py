@@ -18,7 +18,7 @@ import datetime
 import dateutil.parser
 
 from .models import Day
-from .serializers import UserSerializer, GroupSerializer, DaySerializer
+from .serializers import UserSerializer, GroupSerializer, DaySerializer, EntrySerializer
 from .permissions import IsOwnerOrReadOnly
 
 
@@ -40,6 +40,7 @@ class GetCalendarEntries(mixins.ListModelMixin,
 		year = kwargs['date__year']
 		user = request.user
 		userId = user.id
+		print(userId);
 		# Filter data by user and year. Maybe this should be modified later on... 
 		queryset = Day.objects.filter(user=userId, date__year=year)
 		serializer = self.get_serializer(queryset, many=True)
@@ -55,6 +56,22 @@ class GetCalendarEntries(mixins.ListModelMixin,
 	def get(self, request, *args, **kwargs):
 		result_set = self.list(request, *args, **kwargs)
 		return result_set
+
+class GetCalendarEntry(mixins.ListModelMixin,
+						generics.GenericAPIView):
+	queryset = Day.objects.all()
+	lookup_field = 'uuid'
+	serializer_class = EntrySerializer
+	permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+						  IsOwnerOrReadOnly,)
+
+	def get(self, request, *args, **kwargs):
+		uuid = kwargs['uuid']
+		user = request.user
+		userId = user.id
+		queryset = Day.objects.filter(user=userId, uuid=uuid)
+		serializer = self.get_serializer(queryset, many=True)
+		return Response(serializer.data)
 
 class InsertUpdateDeleteAPI(mixins.RetrieveModelMixin,
 							mixins.CreateModelMixin,

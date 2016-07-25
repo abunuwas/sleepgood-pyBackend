@@ -8,7 +8,7 @@
 ##  Start app 
 
 * load virtual env: source venv/bin/activate 
-* start server: python manage.py runserver 8000
+* start server: python manage.py runserver 8080
 
 ## TODO 
 
