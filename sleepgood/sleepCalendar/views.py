@@ -143,7 +143,7 @@ class UserDetails(viewsets.ModelViewSet):
 
 # Session
 
-class SessionDetails(viewsets.ModelViewSet):si
+class SessionDetails(viewsets.ModelViewSet):
 	def post(self): return 0; #set a new session for an existing user - sign in
 	def delete(self): return 0 #delete session for an existing user - sign out
 
