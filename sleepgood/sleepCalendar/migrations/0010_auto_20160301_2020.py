@@ -20,6 +20,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='day',
             name='uuid',
-            field=models.UUIDField(default=uuid.uuid3, editable=False, primary_key=True, serialize=False),
+            field=models.UUIDField(default=uuid.uuid3(uuid.NAMESPACE_DNS, 'name'), editable=False, serialize=False),
         ),
     ]

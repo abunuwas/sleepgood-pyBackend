@@ -18,15 +18,9 @@ class Migration(migrations.Migration):
             old_name='day',
             new_name='date',
         ),
-        migrations.AddField(
-            model_name='day',
-            name='id',
-            field=models.AutoField(auto_created=True, default=1, primary_key=True, serialize=False, verbose_name='ID'),
-            preserve_default=False,
-        ),
         migrations.AlterField(
             model_name='day',
             name='uuid',
-            field=models.UUIDField(default=uuid.uuid3, editable=False),
+            field=models.UUIDField(default=uuid.uuid3(uuid.NAMESPACE_DNS, 'name'), editable=False),
         ),
     ]
