@@ -23,24 +23,24 @@
 
 2. ```cd``` into sleepgood-pyBackend and create a virtual environment and bind it to Python3:
 
-2.1. In Linux/Unix:
+i. In Linux/Unix:
 
 ```$ virtualenv venv --python=python3```
 
-2.2. In Windows:
+ii. In Windows:
 
 ```$ virtualenv venv --python=<path\to\python3.exe>```
 
 3. Activate the virtual environment:
 
-3.1. In Linux/Unix:
+i. In Linux/Unix:
 
 ```
 $ source venv/bin/activate
 (venv)$ 
 ``` 
 
-3.2. In Windows:
+ii. In Windows:
 
 ```
 $ venv\Scripts\activate
@@ -75,9 +75,10 @@ $ exit
 8. ENJOY :D!
 
 ***
-***
 
 # TODO 
+
+***
 
 ### First milestone ()
 
