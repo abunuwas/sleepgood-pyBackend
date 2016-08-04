@@ -1,8 +1,8 @@
-## Sleepgood Backend API
+# Sleepgood Backend API
 
 ##  To run the app, follow the following steps:
 
-# First off, install the following system dependencies:
+### First off, install the following system dependencies:
 
 - Python 3.4+
 - python3-dev
@@ -17,7 +17,7 @@
 
 2. ```cd``` into sleepgood-pyBackend and create a virtual environment and bind it to Python3:
 
-2.1 In Linux/Unix:
+2.1. In Linux/Unix:
 
 ```$ virtualenv venv --python=python3```
 
@@ -39,6 +39,7 @@ $ source venv/bin/activate
 ```
 $ venv\Scripts\activate
 ```
+
 4. Install the Python dependencies:
 
 ```$ pip install -r requirements.txt```
@@ -67,14 +68,14 @@ $ exit
 
 8. ENJOY :D!
 
-## TODO 
+# TODO 
 
 ### First milestone ()
 
 * PUT update
 * DELETE delete
 
-## Second Milestone
+### Second Milestone
 
 * Create script for laoding test values (user carlos)
 * deploy to a server!
