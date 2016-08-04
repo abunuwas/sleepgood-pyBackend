@@ -1,6 +1,8 @@
 # Sleepgood Backend API
+***
 
 ##  To run the app, follow the following steps:
+***
 
 ### First off, install the following system dependencies:
 
@@ -10,6 +12,10 @@
 - python3-pip
 - postgresql
 - libpq-dev
+
+---
+
+### Then build the application:
 
 1. Clone the repository:
 
@@ -67,6 +73,9 @@ $ exit
 ```$ python manage.py run 8080```
 
 8. ENJOY :D!
+
+***
+***
 
 # TODO 
 
