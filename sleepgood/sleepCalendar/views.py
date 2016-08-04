@@ -8,9 +8,12 @@ from .models import Day
 from .permissions import IsOwnerOrReadOnly
 from .serializers import UserSerializer, GroupSerializer, DaySerializer, EntrySerializer
 
+# Default
 
 def indexView(request):
 	return HttpResponse('You are in index view!')
+
+# Calendar
 
 class CalendarList(mixins.ListModelMixin,
 				   generics.GenericAPIView):
@@ -130,8 +133,24 @@ class CalendarDetails(mixins.RetrieveModelMixin,
 		self.perform_destroy(dbEntry)
 		return Response(return_data)
 
+# User
+
+class UserDetails(viewsets.ModelViewSet):
+	def get(self): return 0 #get user info - profile
+	def post(self): return 0 #create a new user - sign up
+	def delete(self): return 0 #delete an existing user - profile
+	def put(self): return 0 #modify an existng user - profile
+
+# Session
+
+class SessionDetails(viewsets.ModelViewSet):si
+	def post(self): return 0; #set a new session for an existing user - sign in
+	def delete(self): return 0 #delete session for an existing user - sign out
+
+
 
 #######################################################################
+
 
 class UserViewSet(viewsets.ModelViewSet):
 	"""
