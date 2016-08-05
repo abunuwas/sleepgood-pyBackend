@@ -70,7 +70,7 @@ $ exit
 
 7. Run the application on port 8080:
 
-```$ python manage.py run 8080```
+```$ python manage.py runserver 8080```
 
 8. ENJOY :D!
 
