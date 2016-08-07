@@ -4,8 +4,10 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse, JsonResponse
 from django.middleware.csrf import get_token
 from django.views.generic import View
-from rest_framework.renderers import JSONRenderer
+from requests import Response
 from rest_framework.views import APIView
+from rest_framework import status
+
 
 
 class Sessions(APIView):
@@ -17,7 +19,10 @@ class Sessions(APIView):
 		if user_exist:
 			payload = {'iss': 'sleepdiary.io', 'sub:': 'Vicens'}
 			encoded = jwt.encode(payload, 'secret', algorithm='HS256')
-			return HttpResponse(encoded)
+			data = {'token_key': str(encoded)}
+			return JsonResponse(data)
+		else:
+			HttpResponse(status.HTTP_401_UNAUTHORIZED)
 
 	def delete(self, request, format=None): #Delete user token (sign out)
 		print("delete")
