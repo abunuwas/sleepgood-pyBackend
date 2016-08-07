@@ -10,10 +10,12 @@ from .serializers import UserSerializer, GroupSerializer, DaySerializer, EntrySe
 
 # Default
 
+
 def indexView(request):
 	return HttpResponse('You are in index view!')
 
 # Calendar
+
 
 class CalendarList(mixins.ListModelMixin,
 				   generics.GenericAPIView):
@@ -53,8 +55,7 @@ class CalendarDetails(mixins.RetrieveModelMixin,
 	queryset = Day.objects.all()
 	lookup_field = 'uuid'
 	serializer_class = EntrySerializer
-	permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-						  IsOwnerOrReadOnly,)
+	permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
 
 	def get(self, request, *args, **kwargs):
 		uuid = kwargs['uuid']
@@ -133,23 +134,8 @@ class CalendarDetails(mixins.RetrieveModelMixin,
 		self.perform_destroy(dbEntry)
 		return Response(return_data)
 
-# User
-
-class UserDetails(viewsets.ModelViewSet):
-	def get(self): return 0 #get user info - profile
-	def post(self): return 0 #create a new user - sign up
-	def delete(self): return 0 #delete an existing user - profile
-	def put(self): return 0 #modify an existng user - profile
-
-# Session
-
-class SessionDetails(viewsets.ModelViewSet):
-	def post(self): return 0; #set a new session for an existing user - sign in
-	def delete(self): return 0 #delete session for an existing user - sign out
-
-
-
 #######################################################################
+#### Maybe delete?? ####
 
 
 class UserViewSet(viewsets.ModelViewSet):
