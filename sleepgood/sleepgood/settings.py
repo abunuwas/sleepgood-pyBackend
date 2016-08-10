@@ -25,7 +25,7 @@ SECRET_KEY = '%s+pe5$g$47hf!gv()^h^y&98_!%l-9_0au-#4*k&&pz22@!(^'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -56,8 +56,9 @@ MIDDLEWARE_CLASSES = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.AllowAny',), # Change later to 'rest_framework.permissions.IsAdminUser'
-    'PAGE_SIZE': 10
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+        ]
 }
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
@@ -90,12 +91,8 @@ WSGI_APPLICATION = 'sleepgood.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'sleepgood',
-        'USER': 'marmot',
-        'PASSWORD': 'sleepgood',
-        'HOST': 'localhost',
-        'PORT': ''
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
@@ -140,5 +137,4 @@ CORS_ORIGIN_ALLOW_ALL = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = '/opt/sleepgood-pyBackend/static/'
-
+STATIC_URL = os.path.join(BASE_DIR, 'static/')
