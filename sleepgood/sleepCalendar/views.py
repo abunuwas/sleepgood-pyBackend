@@ -29,7 +29,6 @@ class CalendarList(mixins.ListModelMixin,
 		year = kwargs['date__year']
 		user = request.user
 		userId = user.id
-		print(userId);
 		# Filter data by user and year. Maybe this should be modified later on...
 		queryset = Day.objects.filter(user=userId, date__year=year)
 		serializer = self.get_serializer(queryset, many=True)
