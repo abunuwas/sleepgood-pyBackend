@@ -4,25 +4,34 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse, JsonResponse
 from django.middleware.csrf import get_token
 from django.views.generic import View
+from rest_framework.parsers import JSONParser
 from requests import Response
 from rest_framework.views import APIView
 from rest_framework import status
-
+import json
+from rest_framework import viewsets, status, mixins, generics, permissions
 
 
 class Sessions(APIView):
 
+	permission_classes = (permissions.AllowAny,)
+	parser_classes = (JSONParser,)
+
 	def post(self, request, format=None): #Create user new token (login in)
-		print("post")
-		# get user credentials from json payload username / password")
-		user_exist = 1  # workaround
-		if user_exist:
-			payload = {'iss': 'sleepdiary.io', 'sub:': 'Vicens'}
+
+		if len(dict(request.data).items()) == 0:
+			return HttpResponse(status.HTTP_401_UNAUTHORIZED)
+		data = {}
+		for key, value in dict(request.data).items():
+			data[str(key)] = str(value)
+		user = authenticate(username=data['username'], password=data['password'])
+		if user is not None:
+			payload = {'iss': 'sleepdiary.io', 'username:': data['username'], 'password': data['password']}
 			encoded = jwt.encode(payload, 'secret', algorithm='HS256')
 			data = {'token_key': str(encoded)}
 			return JsonResponse(data)
 		else:
-			HttpResponse(status.HTTP_401_UNAUTHORIZED)
+			return HttpResponse(status.HTTP_401_UNAUTHORIZED)
 
 	def delete(self, request, format=None): #Delete user token (sign out)
 		print("delete")
