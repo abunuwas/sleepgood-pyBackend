@@ -19,19 +19,19 @@ class Sessions(APIView):
 
 	def post(self, request, format=None): #Create user new token (login in)
 
+		if len(dict(request.data).items()) == 0:
+			return HttpResponse(status.HTTP_401_UNAUTHORIZED)
 		data = {}
 		for key, value in dict(request.data).items():
 			data[str(key)] = str(value)
-		print(data['username'])
-
 		user = authenticate(username=data['username'], password=data['password'])
 		if user is not None:
-			payload = {'iss': 'sleepdiary.io', 'username:': username, 'password': password}
+			payload = {'iss': 'sleepdiary.io', 'username:': data['username'], 'password': data['password']}
 			encoded = jwt.encode(payload, 'secret', algorithm='HS256')
 			data = {'token_key': str(encoded)}
 			return JsonResponse(data)
 		else:
-			HttpResponse(status.HTTP_401_UNAUTHORIZED)
+			return HttpResponse(status.HTTP_401_UNAUTHORIZED)
 
 	def delete(self, request, format=None): #Delete user token (sign out)
 		print("delete")
