@@ -1,11 +1,11 @@
 import json
-import base64
-import jwt
-from django.contrib.auth import authenticate
+
 from django.contrib.auth.models import User, Group
 from django.http import HttpResponse
 from rest_framework import viewsets, status, mixins, generics, permissions
 from rest_framework.response import Response
+
+from sleepgood.accounts.jwtWrapper import jwtWrapper
 from .models import Day
 from .permissions import IsOwnerOrReadOnly
 from .serializers import UserSerializer, GroupSerializer, DaySerializer, EntrySerializer
@@ -35,27 +35,14 @@ class CalendarList(mixins.ListModelMixin,
 			meta[str(key)] = str(value)
 
 		year = kwargs['date__year']
-		parts = meta['HTTP_AUTHORIZATION'].split();
 
-		if parts[0].lower() != 'bearer':
-			return {'code': 'invalid_header', 'description': 'Authorization header must start with Bearer'}
-		elif len(parts) == 1:
-			return {'code': 'invalid_header', 'description': 'Token not found'}
-		elif len(parts) > 2:
-			return {'code': 'invalid_header', 'description': 'Authorization header must be Bearer + \s + token'}
-
-		token = parts[1]
-
-		payload = jwt.decode(
-			token,
-			'qwertyuiopasdfghjklzxcvbnm123456',
-			audience='www.example.com'
-		)
+		if jwtWrapper.check(meta['HTTP_AUTHORIZATION']) == 0:
+			return Response('jwt could not be verified')
 
 		# Filter data by user and year. Maybe this should be modified later on...
 		user = request.user
-		userId = user.id
-		queryset = Day.objects.filter(user=userId, date__year=year)
+		user_id = user.id
+		queryset = Day.objects.filter(user=user_id, date__year=year)
 		serializer = self.get_serializer(queryset, many=True)
 		return_data = {}
 		for result in serializer.data:

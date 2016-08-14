@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 import json
 from rest_framework import viewsets, status, mixins, generics, permissions
-
+from .jwtWrapper import jwtWrapper
 
 class Sessions(APIView):
 	permission_classes = (permissions.AllowAny,)
@@ -28,25 +28,7 @@ class Sessions(APIView):
 		if user is not None:
 			if user.is_active:
 				login(request, user)
-				payload = {
-					"iss": "Online JWT Builder",
-					"iat": 1471121977,
-					"exp": 1502657977,
-					"aud": "www.example.com",
-					"sub": "jrocket@example.com",
-					"GivenName": "Johnny",
-					"Surname": "Rocket",
-					"Email": "jrocket@example.com",
-					"Role": [
-						"Manager",
-						"Project Administrator"
-					]
-				}
-				encoded = jwt.encode(
-					payload,
-					'qwertyuiopasdfghjklzxcvbnm123456',
-					algorithm='HS256'
-				)
+				encoded = jwtWrapper.createToken()
 				data = {'token_key': str(encoded.decode("utf-8"))}
 				return JsonResponse(data)
 			else:

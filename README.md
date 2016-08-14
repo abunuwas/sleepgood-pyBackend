@@ -76,6 +76,10 @@ $ exit
 
 ***
 
+Styleguide: https://www.python.org/dev/peps/pep-0008/
+
+***
+
 # TODO 
 
 ***
