@@ -52,4 +52,5 @@ class jwtWrapper():
 			return authenticate({'code': 'token_invalid_signature', 'description': 'token signature is invalid'})
 
 		# if we get this point means token is verified
+		print(payload)
 		return 1

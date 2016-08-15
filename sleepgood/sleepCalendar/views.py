@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from rest_framework import viewsets, status, mixins, generics, permissions
 from rest_framework.response import Response
 
-from sleepgood.accounts.jwtWrapper import jwtWrapper
+from .jwtWrapper import jwtWrapper
 from .models import Day
 from .permissions import IsOwnerOrReadOnly
 from .serializers import UserSerializer, GroupSerializer, DaySerializer, EntrySerializer
@@ -35,8 +35,8 @@ class CalendarList(mixins.ListModelMixin,
 			meta[str(key)] = str(value)
 
 		year = kwargs['date__year']
-
-		if jwtWrapper.check(meta['HTTP_AUTHORIZATION']) == 0:
+		wrapper = jwtWrapper();
+		if wrapper.check(meta['HTTP_AUTHORIZATION']) == 0:
 			return Response('jwt could not be verified')
 
 		# Filter data by user and year. Maybe this should be modified later on...

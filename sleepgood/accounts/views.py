@@ -28,7 +28,8 @@ class Sessions(APIView):
 		if user is not None:
 			if user.is_active:
 				login(request, user)
-				encoded = jwtWrapper.createToken()
+				wrapper = jwtWrapper();
+				encoded = wrapper.create(data['username'])
 				data = {'token_key': str(encoded.decode("utf-8"))}
 				return JsonResponse(data)
 			else:
