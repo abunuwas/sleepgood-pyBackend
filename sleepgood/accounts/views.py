@@ -21,15 +21,13 @@ class Sessions(APIView):
 
 		if len(dict(request.data).items()) == 0:
 			return HttpResponse(status.HTTP_401_UNAUTHORIZED)
-		data = {}
-		for key, value in dict(request.data).items():
-			data[str(key)] = str(value)
-		user = authenticate(username=data['username'], password=data['password'])
+
+		user = authenticate(username=request.data['username'], password=request.data['password'])
 		if user is not None:
 			if user.is_active:
 				login(request, user)
 				wrapper = jwtWrapper();
-				encoded = wrapper.create(data['username'])
+				encoded = wrapper.create(user.id)
 				data = {'token_key': str(encoded.decode("utf-8"))}
 				return JsonResponse(data)
 			else:

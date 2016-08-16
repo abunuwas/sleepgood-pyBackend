@@ -26,22 +26,14 @@ class CalendarList(mixins.ListModelMixin,
 	queryset = Day.objects.all()
 	lookup_field = 'date__year'
 	serializer_class = DaySerializer
-	permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
+	permission_classes = (permissions.AllowAny,)
 
 	def list(self, request, *args, **kwargs):
 
-		meta = {}
-		for key, value in dict(request.META).items():
-			meta[str(key)] = str(value)
-
 		year = kwargs['date__year']
 		wrapper = jwtWrapper();
-		if wrapper.check(meta['HTTP_AUTHORIZATION']) == 0:
-			return Response('jwt could not be verified')
-
-		# Filter data by user and year. Maybe this should be modified later on...
-		user = request.user
-		user_id = user.id
+		token = wrapper.check(request.META['HTTP_AUTHORIZATION']);
+		user_id = token['sub']
 		queryset = Day.objects.filter(user=user_id, date__year=year)
 		serializer = self.get_serializer(queryset, many=True)
 		return_data = {}
@@ -51,6 +43,7 @@ class CalendarList(mixins.ListModelMixin,
 			# JSON.
 			date = result['date'][:10]
 			return_data[date] = result
+
 		return Response(return_data)
 
 	def get(self, request, *args, **kwargs):

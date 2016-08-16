@@ -6,13 +6,13 @@ from django.contrib.auth import authenticate
 class jwtWrapper():
 	secret = 'qwertyuiopasdfghjklzxcvbnm123456';
 
-	def create(self, username):
+	def create(self, id):
 
 		payload = {
 			"iss": "Sleep Diary",
 			"iat": time.time(),
 			"aud": "www.sleepdiary.io",
-			"sub": username,
+			"sub": id,
 			"Role": [
 				"user",
 			]
@@ -52,5 +52,4 @@ class jwtWrapper():
 			return authenticate({'code': 'token_invalid_signature', 'description': 'token signature is invalid'})
 
 		# if we get this point means token is verified
-		print(payload)
-		return 1
+		return payload
