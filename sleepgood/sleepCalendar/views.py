@@ -29,11 +29,14 @@ class CalendarList(mixins.ListModelMixin,
 	permission_classes = (permissions.AllowAny,)
 
 	def list(self, request, *args, **kwargs):
-
 		year = kwargs['date__year']
+
+		# token validation
 		wrapper = jwtWrapper();
 		token = wrapper.check(request.META['HTTP_AUTHORIZATION']);
 		user_id = token['sub']
+		#  end token validation
+
 		queryset = Day.objects.filter(user=user_id, date__year=year)
 		serializer = self.get_serializer(queryset, many=True)
 		return_data = {}
@@ -59,7 +62,7 @@ class CalendarDetails(mixins.RetrieveModelMixin,
 	queryset = Day.objects.all()
 	lookup_field = 'uuid'
 	serializer_class = EntrySerializer
-	permission_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
+	permission_classes = (permissions.AllowAny,)
 
 	def get(self, request, *args, **kwargs):
 		uuid = kwargs['uuid']
@@ -81,10 +84,25 @@ class CalendarDetails(mixins.RetrieveModelMixin,
 	def create(self, request, *args, **kwargs):
 		# SUPER IMPORTANT! CHECK FIRST THAT THE DAY HASN'T ALREADY BEEN SAVED IN THE DB.
 		# THIS CHECK SHOULD PROBABLY DONE IN THE MODELS MODULE!!!!!!!!!
+
+		# token validation
+		wrapper = jwtWrapper()
+		if 'HTTP_AUTHORIZATION' not in request.META:
+			return Response('No authorization header', status=status.HTTP_401_UNAUTHORIZED)
+		try:
+			token = wrapper.check(request.META['HTTP_AUTHORIZATION']);
+		except RuntimeError:
+			return Response('error on token parsing. It is a correct one?')
+
+		user_id = token['sub']
+		#  end token validation
+
 		values = {key: value for key, value in request.data.items()}
-		values['user'] = self.request.user.pk
+
+		user_obj = User.objects.get(id=user_id)
+		values['user'] = user_obj
 		serializer = DaySerializer(data=values)
-		serializer.is_valid(raise_exception=True)
+		serializer.is_valid(raise_exception=False)
 		self.perform_create(serializer)
 		headers = self.get_success_headers(serializer.data)
 		return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
