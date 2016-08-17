@@ -13,6 +13,7 @@ import json
 from rest_framework import viewsets, status, mixins, generics, permissions
 from .jwtWrapper import jwtWrapper
 
+
 class Sessions(APIView):
 	permission_classes = (permissions.AllowAny,)
 	parser_classes = (JSONParser,)
@@ -23,12 +24,17 @@ class Sessions(APIView):
 			return HttpResponse(status.HTTP_401_UNAUTHORIZED)
 
 		user = authenticate(username=request.data['username'], password=request.data['password'])
+
 		if user is not None:
 			if user.is_active:
 				login(request, user)
 				wrapper = jwtWrapper();
 				encoded = wrapper.create(user.id)
-				data = {'token_key': str(encoded.decode("utf-8"))}
+				data = {
+					'token_key': str(encoded.decode("utf-8")),
+					'username': str(user.get_username()),
+					'userId': str(user.id)
+				}
 				return JsonResponse(data)
 			else:
 				HttpResponse('You are not active')
