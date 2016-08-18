@@ -16,52 +16,44 @@ def generateUUID(userId=None, date=None):
 	return str(uuidValue)
 
 
+class Test(models.Model):
+	created = models.DateTimeField(auto_now_add=True)
+	title = models.CharField(max_length=100, blank=True, default='')
+	code = models.TextField()
+	user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+	class Meta:
+		ordering = ('created',)
+
+
 class Day(models.Model):
 	# Specify which values are available for the sleepingQuality and
-	# the tirednessFeeling attributes. This is useful for validation. 
+	# the tirednessFeeling attributes. This is useful for validation.
 	good = 'good'
 	bad = 'bad'
 	regular = 'regular'
 	choices = (
-		(good, 'good'), 
-		(bad, 'bad'), 
+		(good, 'good'),
+		(bad, 'bad'),
 		(regular, 'regular')
-		)
+	)
 
-	id = models.IntegerField(primary_key=True)
 	sleepingQuality = models.CharField(max_length=7, choices=choices)
 	tirednessFeeling = models.CharField(max_length=7, choices=choices)
-	date = models.DateTimeField()
+	date = models.DateTimeField(default=timezone.now)
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
-	uuid = models.CharField(max_length=32, primary_key=False)
-	# Verify that auto_now_add and auto_now are actually the best choices for this
+	uuid = models.CharField(max_length=64, default='', blank=True)
 	date_created = models.DateTimeField(auto_now_add=True)
-	date_modified = models.DateTimeField()
-
-	class Meta:
-		# Order results by date of creation
-		ordering = ('date_created',)
-
-	def getDict(self):
-		'''
-		Some of the class attributes are instances of other classes, so they are not serializable into Json.
-		This method provides a dictionary representation of all class' attributes for those cases in which
-		they must be serialized.  
-		'''
-		return {'sleepingQuality': self.sleepingQuality,
-		         'tirednessFeeling': self.tirednessFeeling,
-		         'date': str(self.date),
-		         'userId': str(self.user),
-		         'date_created': str(self.date_created),
-		         'date_modified': str(self.date_modified)
-		         }
+	date_modified = models.DateTimeField(auto_now=True)
 
 	def save(self, *args, **kwargs):
 		'''
 		Customizes the save method for this model. It checks whether a uuid value has already been assigned
 		to the entry, and if not (meaning it's a new entry), creates one for it. It also updates the date_modified
-		field with every call to the save method, i.e. every time a change is made on the entry. 
+		field with every call to the save method, i.e. every time a change is made on the entry.
 		'''
+		print('custom save')
+		print('#############')
 		if self.uuid == '':
 			uuid = generateUUID(self.user_id, self.date)
 			self.uuid = str(uuid)
@@ -73,5 +65,24 @@ class Day(models.Model):
 		return 'Calendar(user={}, date={}, sleepingQuality={}, tirednessFeeling={}, uuid={})'.format(
 			self.user, self.date, self.sleepingQuality, self.tirednessFeeling, self.uuid)
 
+	class Meta:
+		# Order results by date of creation
+		ordering = ('date_created',)
+
+
+
+	# def getDict(self):
+	# 	'''
+	# 	Some of the class attributes are instances of other classes, so they are not serializable into Json.
+	# 	This method provides a dictionary representation of all class' attributes for those cases in which
+	# 	they must be serialized.
+	# 	'''
+	# 	return {'sleepingQuality': self.sleepingQuality,
+	# 	         'tirednessFeeling': self.tirednessFeeling,
+	# 	         'date': str(self.date),
+	# 	         'userId': str(self.user),
+	# 	         'date_created': str(self.date_created),
+	# 	         'date_modified': str(self.date_modified)
+	# 	         }
 
 

@@ -1,3 +1,36 @@
+## Create day in shell
+
+from sleepCalendar.models import Day
+from sleepCalendar.serializers import DaySerializer
+from rest_framework.renderers import JSONRenderer
+from rest_framework.parsers import JSONParser
+from django.contrib.auth.models import User
+
+user_obj = User.objects.get(id=1) # set user_id i.e '1'
+day = Day(sleepingQuality='good', tirednessFeeling='good', uuid='12341414', user=user_obj)
+day.save()
+
+## Check serializer
+
+serializer = DaySerializer(day)
+serializer.data
+# output
+
+content = JSONRenderer().render(serializer.data)
+content #byte object
+
+
+>>> from django.utils.six import BytesIO
+>>> stream = BytesIO(content)
+>>> data = JSONParser().parse(stream)
+
+>>> serializer = DaySerializer(data=data)
+>>> serializer.is_valid()
+
+### Create user
+
+INSERT INTO auth_user (id, password, last_login, is_superuser, first_name, last_name, email, is_staff, is_active, date_joined, username) VALUES (1, 'pbkdf2_sha256$24000$985d40H5kkET$Sv62MQm/JF5sfWhiHGfVyvcE6zlYhQgjlPHa6m6SDEo=', '2016-08-18 08:54:12.401626', true, 'Pepito', 'Grillo', 'j@j.com', false, true, '2016-03-02 18:52:57.991763', 'carlos');
+
 
 TODO
 

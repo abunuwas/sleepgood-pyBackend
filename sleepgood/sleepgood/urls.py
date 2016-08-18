@@ -15,21 +15,10 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-from django.contrib.auth.models import User
-from rest_framework import routers, serializers, viewsets
-
-from sleepCalendar import views
-
-
-# Routers provide an easy way of automatically determining the URL conf.
-router = routers.DefaultRouter()
-router.register(r'users', views.UserViewSet)
-router.register(r'groups', views.GroupViewSet)
 
 urlpatterns = [
-    url(r'^', include('sleepCalendar.urls', namespace='sleepCalendar')),
-    url(r'^api/', include(router.urls)),
-    url(r'^accounts/', include('accounts.urls', namespace='accounts')),
-    url(r'^admin/', admin.site.urls),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+	url(r'^', include('sleepCalendar.urls', namespace='sleepCalendar')),
+	url(r'^accounts/', include('accounts.urls', namespace='accounts')),
+	url(r'^admin/', admin.site.urls),
+	url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

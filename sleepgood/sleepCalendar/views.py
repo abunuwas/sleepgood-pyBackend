@@ -1,14 +1,17 @@
 import json
+import dateutil.parser
 
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.http import HttpResponse
-from rest_framework import viewsets, status, mixins, generics, permissions
+from rest_framework import status, mixins, generics, permissions
+from rest_framework.parsers import JSONParser
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
+from six import BytesIO
 
 from .jwtWrapper import jwtWrapper
 from .models import Day
-from .permissions import IsOwnerOrReadOnly
-from .serializers import UserSerializer, GroupSerializer, DaySerializer, EntrySerializer
+from .serializers import DaySerializer, EntrySerializer, TestSerializer
 
 
 # Default
@@ -82,8 +85,6 @@ class CalendarDetails(mixins.RetrieveModelMixin,
 		return self.destroy(request, *args, **kwargs)
 
 	def create(self, request, *args, **kwargs):
-		# SUPER IMPORTANT! CHECK FIRST THAT THE DAY HASN'T ALREADY BEEN SAVED IN THE DB.
-		# THIS CHECK SHOULD PROBABLY DONE IN THE MODELS MODULE!!!!!!!!!
 
 		# token validation
 		wrapper = jwtWrapper()
@@ -95,22 +96,37 @@ class CalendarDetails(mixins.RetrieveModelMixin,
 			return Response('error on token parsing. It is a correct one?')
 
 		user_id = token['sub']
-		#  end token validation
+		# end token validation
+
+		#### test code ###
+		# user_obj = User.objects.get(id=1)
+		# data = {
+		# 	'code': 'hey whats up',
+		# 	'user': '1'
+		# }
+		# print('##### test #######')
+		# print(data)
+		# serializer = TestSerializer(data=data)
+		# print(serializer.is_valid())
+		# print('#####################')
+		# if serializer.is_valid():
+		# 	serializer.save()
+		### end test code ###
 
 		values = {key: value for key, value in request.data.items()}
-
-		user_obj = User.objects.get(id=user_id)
-		values['user'] = user_obj
+		values['user'] = user_id  # set user
 		serializer = DaySerializer(data=values)
-		serializer.is_valid(raise_exception=False)
-		self.perform_create(serializer)
-		headers = self.get_success_headers(serializer.data)
-		return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-	def perform_create(self, serializer):
-		# Override this method passing user data to the save method, which will signed
-		# the current user as owner of this data.
-		serializer.save(user=self.request.user)
+		date = dateutil.parser.parse(values['date']);
+		print(type(date))
+		queryset = Day.objects.filter(user=values['user'], date=date)
+		if queryset:
+			return Response('day already in database', status=status.HTTP_406_NOT_ACCEPTABLE)
+		if serializer.is_valid():
+			serializer.save()
+			headers = self.get_success_headers(serializer.data)
+			return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 	def update(self, request, *args, **kwargs):
 		'''
@@ -155,23 +171,3 @@ class CalendarDetails(mixins.RetrieveModelMixin,
 		return_data = json.dumps(return_data)
 		self.perform_destroy(dbEntry)
 		return Response(return_data)
-
-
-#######################################################################
-#### Maybe delete?? ####
-
-
-class UserViewSet(viewsets.ModelViewSet):
-	"""
-	API endpoint that allows users to be viewed or edited.
-	"""
-	queryset = User.objects.all().order_by('-date_joined')
-	serializer_class = UserSerializer
-
-
-class GroupViewSet(viewsets.ModelViewSet):
-	'''
-	API endpoint that allows groups to be viewed or edied.
-	'''
-	queryset = Group.objects.all()
-	serializer_class = GroupSerializer
