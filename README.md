@@ -56,7 +56,7 @@ $ venv\Scripts\activate
 $ sudo su - postgres
 $ psql
 $ create user marmot with password 'sleepgood';
-$ create database sleepgood owner marmot;
+$ create database sleepdiary owner marmot;
 $ \q
 $ exit
 ```
