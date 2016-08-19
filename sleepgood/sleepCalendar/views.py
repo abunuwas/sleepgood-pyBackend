@@ -3,6 +3,7 @@ import dateutil.parser
 
 from django.contrib.auth.models import User
 from django.http import HttpResponse
+from django.http import JsonResponse
 from rest_framework import status, mixins, generics, permissions
 from rest_framework.parsers import JSONParser
 from rest_framework.renderers import JSONRenderer
@@ -35,10 +36,16 @@ class CalendarList(mixins.ListModelMixin,
 		year = kwargs['date__year']
 
 		# token validation
-		wrapper = jwtWrapper();
-		token = wrapper.check(request.META['HTTP_AUTHORIZATION']);
+		wrapper = jwtWrapper()
+		if 'HTTP_AUTHORIZATION' not in request.META:
+			return Response('No authorization header', status=status.HTTP_401_UNAUTHORIZED)
+		try:
+			token = wrapper.check(request.META['HTTP_AUTHORIZATION']);
+		except RuntimeError:
+			return Response('error on token parsing.', status=status.HTTP_400_BAD_REQUEST)
+
 		user_id = token['sub']
-		#  end token validation
+		# end token validation
 
 		queryset = Day.objects.filter(user=user_id, date__year=year)
 		serializer = self.get_serializer(queryset, many=True)
@@ -93,7 +100,7 @@ class CalendarDetails(mixins.RetrieveModelMixin,
 		try:
 			token = wrapper.check(request.META['HTTP_AUTHORIZATION']);
 		except RuntimeError:
-			return Response('error on token parsing. It is a correct one?')
+			return Response('error on token parsing.', status=status.HTTP_400_BAD_REQUEST)
 
 		user_id = token['sub']
 		# end token validation
@@ -121,12 +128,13 @@ class CalendarDetails(mixins.RetrieveModelMixin,
 		print(type(date))
 		queryset = Day.objects.filter(user=values['user'], date=date)
 		if queryset:
-			return Response('day already in database', status=status.HTTP_406_NOT_ACCEPTABLE)
+			return Response('day already in database', status=status.HTTP_400_BAD_REQUEST)
 		if serializer.is_valid():
 			serializer.save()
 			headers = self.get_success_headers(serializer.data)
 			return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+		else:
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 	def update(self, request, *args, **kwargs):
 		'''

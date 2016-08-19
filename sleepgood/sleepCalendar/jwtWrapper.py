@@ -1,9 +1,13 @@
 import jwt
 import time
 from django.contrib.auth import authenticate
+from requests import Response
+from rest_framework import status
 
 
 class jwtWrapper():
+
+	# TODO: Move to a no reachable place!!
 	secret = 'qwertyuiopasdfghjklzxcvbnm123456';
 
 	def create(self, id):
@@ -29,27 +33,28 @@ class jwtWrapper():
 		parts = meta.split();
 
 		if parts[0].lower() != 'bearer':
-			return {'code': 'invalid_header', 'description': 'Authorization header must start with Bearer'}
+			return Response('Authorization header must start with Bearer', status=status.HTTP_401_UNAUTHORIZED)
 		elif len(parts) == 1:
-			return {'code': 'invalid_header', 'description': 'Token not found'}
+			return Response('Token not found', status=status.HTTP_401_UNAUTHORIZED)
 		elif len(parts) > 2:
-			return {'code': 'invalid_header', 'description': 'Authorization header must be Bearer + \s + token'}
+			return Response('Authorization header must be Bearer + \s + token', status=status.HTTP_401_UNAUTHORIZED)
 
 		token = parts[1]
 
 		try:
 			payload = jwt.decode(
 				token,
-				'qwertyuiopasdfghjklzxcvbnm123456',
+				self.secret,
 				audience='www.sleepdiary.io'
 			)
 		except jwt.ExpiredSignature:
-			return authenticate({'code': 'token_expired', 'description': 'token is expired'})
+			return Response('token is expired', status=status.HTTP_401_UNAUTHORIZED)
 		except jwt.InvalidAudienceError:
-			return authenticate(
-				{'code': 'invalid_audience', 'description': 'incorrect audience, expected: YOUR_CLIENT_ID'})
+			return Response('incorrect audience, expected: YOUR_CLIENT_ID', status=status.HTTP_401_UNAUTHORIZED)
 		except jwt.DecodeError:
-			return authenticate({'code': 'token_invalid_signature', 'description': 'token signature is invalid'})
+			return Response('token signature is invalid', status=status.HTTP_401_UNAUTHORIZED)
 
 		# if we get this point means token is verified
 		return payload
+
+
