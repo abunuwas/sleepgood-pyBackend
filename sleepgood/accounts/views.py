@@ -1,4 +1,5 @@
 import jwt
+import base64
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.http import HttpResponse, JsonResponse
@@ -10,45 +11,53 @@ from rest_framework.views import APIView
 from rest_framework import status
 import json
 from rest_framework import viewsets, status, mixins, generics, permissions
+from .jwtWrapper import jwtWrapper
 
 
 class Sessions(APIView):
-
 	permission_classes = (permissions.AllowAny,)
 	parser_classes = (JSONParser,)
 
-	def post(self, request, format=None): #Create user new token (login in)
+	def post(self, request, format=None):  # Create user new token (login in)
 
 		if len(dict(request.data).items()) == 0:
 			return HttpResponse(status.HTTP_401_UNAUTHORIZED)
-		data = {}
-		for key, value in dict(request.data).items():
-			data[str(key)] = str(value)
-		user = authenticate(username=data['username'], password=data['password'])
+
+		user = authenticate(username=request.data['username'], password=request.data['password'])
+
 		if user is not None:
-			payload = {'iss': 'sleepdiary.io', 'username:': data['username'], 'password': data['password']}
-			encoded = jwt.encode(payload, 'secret', algorithm='HS256')
-			data = {'token_key': str(encoded)}
-			return JsonResponse(data)
+			if user.is_active:
+				login(request, user)
+				wrapper = jwtWrapper();
+				encoded = wrapper.create(user.id)
+				data = {
+					'token_key': str(encoded.decode("utf-8")),
+					'username': str(user.get_username()),
+					'userId': str(user.id)
+				}
+				return JsonResponse(data)
+			else:
+				HttpResponse('You are not active')
 		else:
 			return HttpResponse(status.HTTP_401_UNAUTHORIZED)
 
-	def delete(self, request, format=None): #Delete user token (sign out)
-		print("delete")
-		return 0;
+
+def delete(self, request, format=None):  # Delete user token (sign out)
+	print("delete")
+	return 0;
 
 
 class User(View):
 	http_method_names = ['post', 'get']
 
-	def get(self, request): #get user info - profile
+	def get(self, request):  # get user info - profile
 		get_token(request)
 		data = {}
 		for key, value in dict(request.META).items():
 			data[str(key)] = str(value)
 		return JsonResponse(data)
 
-	def post(self, request): #create a new user - sign up
+	def post(self, request):  # create a new user - sign up
 		username, email, password = request.POST['username'], request.POST['email'], request.POST['password']
 		new_user = User(username=username, email=email)
 		new_user.set_password(password)
@@ -68,10 +77,10 @@ class User(View):
 			HttpResponse('The account does not exist')
 
 	def delete(self):
-			return 0  # delete an existing user - profile
+		return 0  # delete an existing user - profile
 
 	def put(self):
-			return 0  # modify an existng user - profile
+		return 0  # modify an existng user - profile
 
 #
 # def expose(request):

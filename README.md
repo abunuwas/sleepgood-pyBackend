@@ -56,7 +56,7 @@ $ venv\Scripts\activate
 $ sudo su - postgres
 $ psql
 $ create user marmot with password 'sleepgood';
-$ create database sleepgood owner marmot;
+$ create database sleepdiary owner marmot;
 $ \q
 $ exit
 ```
@@ -73,6 +73,10 @@ $ exit
 ```$ python manage.py runserver 8080```
 
 8. ENJOY :D!
+
+***
+
+Styleguide: https://www.python.org/dev/peps/pep-0008/
 
 ***
 
