@@ -12,7 +12,7 @@ from six import BytesIO
 
 from .jwtWrapper import jwtWrapper
 from .models import Day
-from .serializers import DaySerializer, EntrySerializer, TestSerializer
+from .serializers import DaySerializer
 
 
 # Default
@@ -136,41 +136,42 @@ class CalendarDetails(mixins.RetrieveModelMixin,
 			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 	def update(self, request, *args, **kwargs):
-		'''
-		It updates a value in the database. Data can only be modified by users who own/created it.
-		This method extensively overrides the original update method from the UpdateModelMixin class.
-		It expects the following parameters from the request:
-		<uuid>
-		<tirednessFeeling>
-		<sleepingQuality>
-		User data must be included in the headers.
-		'''
-		# Create dictionary of values from payload in the request.
-		# The `values` dictionary stores data that will be used to build a
-		# serializer with which we can updated the corresponding database entry.
+
+		# token validation
+		wrapper = jwtWrapper()
+		if 'HTTP_AUTHORIZATION' not in request.META:
+			return Response('No authorization header', status=status.HTTP_401_UNAUTHORIZED)
+		try:
+			token = wrapper.check(request.META['HTTP_AUTHORIZATION']);
+		except RuntimeError:
+			return Response('error on token parsing.', status=status.HTTP_400_BAD_REQUEST)
+
+		user_id = token['sub']
+		# end token validation
+
 		values = {key: value for key, value in self.request.data.items()}
-		# Obtain the primary key of the user object returned by the request.
-		values['user'] = self.request.user.pk
-		# Retrieve database entry corresponding to the uuid value included in the request.
-		dbEntry = Day.objects.get(uuid=values['uuid'])
-		# Include the date field from the database entry in the values dictioanry.
-		values['date'] = dbEntry.date
-		# Build a dictionary of values for the serializer object from the database entry.
-		serializer_values = dbEntry.getDict()
-		# Add the primary of hte user to the dictionary of values for the seriazlier.
-		serializer_values['user'] = self.request.user.pk
-		# Build the serializer object. This object represents the old database entry
-		# that will be updated.
+		values['user'] = user_id  # set user
+		# values['user'] = self.request.user.pk # Removed till we have again session
+		if not values:
+			return Response('request payload is empty!.', status=status.HTTP_400_BAD_REQUEST)
+
+		db_entry = Day.objects.get(uuid=values['uuid'])
+		values['date'] = db_entry.date
+		serializer_values = db_entry.getDict()
+		serializer_values['user'] = user_id
 		serializer = DaySerializer(data=serializer_values)
-		# Validate data in the serializer to be able to save it.
-		serializer.is_valid(raise_exception=True)
-		# Build new serializer from the new values included in the request.
-		newSerializer = DaySerializer(dbEntry, data=values)
-		# Validate data for the new serializer object.
-		newSerializer.is_valid(raise_exception=True)
-		# Update database entry.
-		self.perform_update(newSerializer)
-		return Response(newSerializer.data)
+
+		if serializer.is_valid():
+
+			new_serializer = DaySerializer(db_entry, data=values)
+			if new_serializer.is_valid(raise_exception=True):
+				new_serializer.save()
+				return Response(new_serializer.data)
+			else:
+				return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+		else:
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 	def destroy(self, request, *args, **kwargs):
 		dbEntry = Day.objects.get(uuid=request.data.get('uuid'))

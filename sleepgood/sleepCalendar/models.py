@@ -52,8 +52,6 @@ class Day(models.Model):
 		to the entry, and if not (meaning it's a new entry), creates one for it. It also updates the date_modified
 		field with every call to the save method, i.e. every time a change is made on the entry.
 		'''
-		print('custom save')
-		print('#############')
 		if self.uuid == '':
 			uuid = generateUUID(self.user_id, self.date)
 			self.uuid = str(uuid)
@@ -69,20 +67,16 @@ class Day(models.Model):
 		# Order results by date of creation
 		ordering = ('date_created',)
 
-
-
-	# def getDict(self):
-	# 	'''
-	# 	Some of the class attributes are instances of other classes, so they are not serializable into Json.
-	# 	This method provides a dictionary representation of all class' attributes for those cases in which
-	# 	they must be serialized.
-	# 	'''
-	# 	return {'sleepingQuality': self.sleepingQuality,
-	# 	         'tirednessFeeling': self.tirednessFeeling,
-	# 	         'date': str(self.date),
-	# 	         'userId': str(self.user),
-	# 	         'date_created': str(self.date_created),
-	# 	         'date_modified': str(self.date_modified)
-	# 	         }
-
-
+	def getDict(self):
+		'''
+		Some of the class attributes are instances of other classes, so they are not serializable into Json.
+		This method provides a dictionary representation of all class' attributes for those cases in which
+		they must be serialized.
+		'''
+		return {'sleepingQuality': self.sleepingQuality,
+				'tirednessFeeling': self.tirednessFeeling,
+				'date': str(self.date),
+				'userId': str(self.user),
+				'date_created': str(self.date_created),
+				'date_modified': str(self.date_modified)
+				}
