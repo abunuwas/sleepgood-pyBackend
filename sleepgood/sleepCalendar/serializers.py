@@ -16,13 +16,6 @@ class TestSerializer(serializers.ModelSerializer):
 		model = Test
 		fields = ('id', 'title', 'code', 'user')
 
-
-class EntrySerializer(serializers.ModelSerializer):
-	class Meta:
-		model = Day
-		fields = ('sleepingQuality', 'tirednessFeeling', 'date', 'user', 'uuid')
-
-
 class DaySerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Day

@@ -71,14 +71,26 @@ class CalendarDetails(mixins.RetrieveModelMixin,
 					  generics.GenericAPIView):
 	queryset = Day.objects.all()
 	lookup_field = 'uuid'
-	serializer_class = EntrySerializer
+	serializer_class = DaySerializer
 	permission_classes = (permissions.AllowAny,)
 
 	def get(self, request, *args, **kwargs):
 		uuid = kwargs['uuid']
 		user = request.user
-		userId = user.id
-		queryset = Day.objects.filter(user=userId, uuid=uuid)
+
+		# token validation
+		wrapper = jwtWrapper()
+		if 'HTTP_AUTHORIZATION' not in request.META:
+			return Response('No authorization header', status=status.HTTP_401_UNAUTHORIZED)
+		try:
+			token = wrapper.check(request.META['HTTP_AUTHORIZATION']);
+		except RuntimeError:
+			return Response('error on token parsing.', status=status.HTTP_400_BAD_REQUEST)
+
+		user_id = token['sub']
+		# end token validation
+
+		queryset = Day.objects.filter(user=user_id, uuid=uuid)
 		serializer = self.get_serializer(queryset, many=True)
 		return Response(serializer.data)
 
@@ -105,23 +117,10 @@ class CalendarDetails(mixins.RetrieveModelMixin,
 		user_id = token['sub']
 		# end token validation
 
-		#### test code ###
-		# user_obj = User.objects.get(id=1)
-		# data = {
-		# 	'code': 'hey whats up',
-		# 	'user': '1'
-		# }
-		# print('##### test #######')
-		# print(data)
-		# serializer = TestSerializer(data=data)
-		# print(serializer.is_valid())
-		# print('#####################')
-		# if serializer.is_valid():
-		# 	serializer.save()
-		### end test code ###
-
 		values = {key: value for key, value in request.data.items()}
 		values['user'] = user_id  # set user
+		if not values:
+			return Response('request payload is empty!.', status=status.HTTP_400_BAD_REQUEST)
 		serializer = DaySerializer(data=values)
 
 		date = dateutil.parser.parse(values['date']);
