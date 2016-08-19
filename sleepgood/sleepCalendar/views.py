@@ -174,7 +174,26 @@ class CalendarDetails(mixins.RetrieveModelMixin,
 			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 	def destroy(self, request, *args, **kwargs):
-		dbEntry = Day.objects.get(uuid=request.data.get('uuid'))
+
+		# token validation
+		wrapper = jwtWrapper()
+		if 'HTTP_AUTHORIZATION' not in request.META:
+			return Response('No authorization header', status=status.HTTP_401_UNAUTHORIZED)
+		try:
+			token = wrapper.check(request.META['HTTP_AUTHORIZATION']);
+		except RuntimeError:
+			return Response('error on token parsing.', status=status.HTTP_400_BAD_REQUEST)
+
+		user_id = token['sub']
+		# end token validation
+		uuid = kwargs['uuid']
+		print(uuid)
+		if not uuid:
+			return Response('Not UUID given', status=status.HTTP_400_BAD_REQUEST)
+		try:
+			dbEntry = Day.objects.get(uuid=uuid)
+		except RuntimeError: # TODO: replace RUNTIME error by .models.DoesNotExist
+			return Response('Element does not exist in DB!', status=status.HTTP_400_BAD_REQUEST)
 		return_data = dbEntry.getDict()
 		return_data = json.dumps(return_data)
 		self.perform_destroy(dbEntry)
