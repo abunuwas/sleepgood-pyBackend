@@ -75,6 +75,7 @@ class Users(APIView):
 
 		# check if e-mail already exists (FIX: username should be allowed)
 		# http://django-authtools.readthedocs.io/en/latest/how-to/migrate-to-a-custom-user-model.html
+		# http://stackoverflow.com/questions/2028515/django-allow-duplicate-usernames
 		if User.objects.filter(username=username).exists():
 			return HttpResponse('username already exists', status.HTTP_409_CONFLICT)
 
