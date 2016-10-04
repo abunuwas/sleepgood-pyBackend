@@ -15,24 +15,25 @@ from .jwtWrapper import jwtWrapper
 
 
 class Sessions(APIView):
+	http_method_names = ['post', 'get']
 	permission_classes = (permissions.AllowAny,)
 	parser_classes = (JSONParser,)
 
-	def post(self, request, format=None):  # Create user new token (login in)
+	def post(self, request):  # Create user new token (login in)
 
 		if len(dict(request.data).items()) == 0:
 			return HttpResponse(status.HTTP_401_UNAUTHORIZED)
 
-		user = authenticate(username=request.data['username'], password=request.data['password'])
+		user = authenticate(email=request.data['email'], password=request.data['password'])
 
 		if user is not None:
 			if user.is_active:
-				login(request, user)
+
 				wrapper = jwtWrapper();
 				encoded = wrapper.create(user.id)
 				data = {
 					'token_key': str(encoded.decode("utf-8")),
-					'username': str(user.get_username()),
+					'name': str(user.get_username()),
 					'userId': str(user.id)
 				}
 				return JsonResponse(data)
@@ -51,7 +52,6 @@ class Users(APIView):
 	http_method_names = ['post', 'get']
 	permission_classes = (permissions.AllowAny,)
 	parser_classes = (JSONParser,)
-
 
 	def get(self, request):  # get user info - profile
 		get_token(request)
@@ -92,10 +92,8 @@ class Users(APIView):
 
 		return JsonResponse(data)
 
-
 	def delete(self):
 		return 0  # delete an existing user - profile
 
 	def put(self):
 		return 0  # modify an existng user - profile
-

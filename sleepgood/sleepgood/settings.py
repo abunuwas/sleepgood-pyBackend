@@ -60,7 +60,7 @@ REST_FRAMEWORK = {
 	'DEFAULT_PERMISSION_CLASSES': (
 		'rest_framework.parsers.JSONParser',
 		'rest_framework.permissions.AllowAny'
-	),  # Change later to 'rest_framework.permissions.IsAdminUser'
+	),
 	'PAGE_SIZE': 10
 }
 

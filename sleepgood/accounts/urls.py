@@ -5,6 +5,6 @@ from . import views
 
 app_name = 'accounts'
 urlpatterns = [
-	url('^session$', views.Sessions.as_view()),
+	url('^session$', csrf_exempt(views.Sessions.as_view())),
 	url('^user$', csrf_exempt(views.Users.as_view()))
 ]
