@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Day, User, Test
+from .models import Day
 
 
 # # Serializers define the API representation
@@ -9,12 +9,6 @@ from .models import Day, User, Test
 # 	class Meta:
 # 		model = User
 # 		fields = ('id', 'username', 'email', 'days')
-
-
-class TestSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = Test
-		fields = ('id', 'title', 'code', 'user')
 
 class DaySerializer(serializers.ModelSerializer):
 	class Meta:

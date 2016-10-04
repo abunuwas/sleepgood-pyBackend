@@ -1,7 +1,7 @@
 import jwt
 import base64
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.models import User
+from authtools.models import User
 from django.http import HttpResponse, JsonResponse
 from django.middleware.csrf import get_token
 from django.views.generic import View
@@ -65,7 +65,7 @@ class Users(APIView):
 		if len(dict(request.data).items()) == 0:
 			return HttpResponse(status.HTTP_401_UNAUTHORIZED)
 
-		username = request.data['username']
+		name = request.data['name']
 		password = request.data['password']
 		email = request.data['email']
 
@@ -73,14 +73,8 @@ class Users(APIView):
 		if User.objects.filter(email=email).exists():
 			return HttpResponse('user already exists', status.HTTP_409_CONFLICT)
 
-		# check if e-mail already exists (FIX: username should be allowed)
-		# http://django-authtools.readthedocs.io/en/latest/how-to/migrate-to-a-custom-user-model.html
-		# http://stackoverflow.com/questions/2028515/django-allow-duplicate-usernames
-		if User.objects.filter(username=username).exists():
-			return HttpResponse('username already exists', status.HTTP_409_CONFLICT)
-
 		# sign out new user
-		new_user = User(username=username, email=email)
+		new_user = User(name=name, email=email)
 		new_user.set_password(password)
 		try:
 			new_user.save()
@@ -88,42 +82,16 @@ class Users(APIView):
 			return Response('error on token parsing.', status=status.HTTP_400_BAD_REQUEST)
 
 		# login user automatically and return new JWT key
-		user = authenticate(username=username, password=password)
-		if user is not None:
-			if user.is_active:
-				login(request, user)
-				wrapper = jwtWrapper();
-				encoded = wrapper.create(user.id)
-				data = {
-					'token_key': str(encoded.decode("utf-8")),
-					'username': str(user.get_username()),
-					'userId': str(user.id)
-				}
-				return JsonResponse(data)
-			else:
-				HttpResponse('You are not active')
-		else:
-			return HttpResponse(status.HTTP_401_UNAUTHORIZED)
+		wrapper = jwtWrapper();
+		encoded = wrapper.create(new_user.id)
+		data = {
+			'token_key': str(encoded.decode("utf-8")),
+			'name': str(new_user.get_username()),
+			'userId': str(new_user.id)
+		}
 
+		return JsonResponse(data)
 
-	# def post(self, request):  # create a new user - sign up
-	# 	username, email, password = request.POST['username'], request.POST['email'], request.POST['password']
-	# 	new_user = User(username=username, email=email)
-	# 	new_user.set_password(password)
-	# 	new_user.save()
-	# 	user = authenticate(username=username, password=password)
-	# 	if user is not None:
-	# 		if user.is_active:
-	# 			login(request, user)
-	# 			data = {}
-	# 			for key, value in dict(request.META).items():
-	# 				data[str(key)] = str(value)
-	# 			return JsonResponse(data)
-	# 		# return HttpResponse('Good!')
-	# 		else:
-	# 			HttpResponse('You are not active')
-	# 	else:
-	# 		HttpResponse('The account does not exist')
 
 	def delete(self):
 		return 0  # delete an existing user - profile
@@ -131,15 +99,3 @@ class Users(APIView):
 	def put(self):
 		return 0  # modify an existng user - profile
 
-#
-# def expose(request):
-# 	get_token(request)
-# 	#hFwr0EKBGomGwOesoWhQ9FpiMAvKNA5g
-# 	#csrftoken=hFwr0EKBGomGwOesoWhQ9FpiMAvKNA5g
-# 	#output = ''
-# 	#for key, value in dict(request.META).items():
-# 	#	output += str(key) + ' ========> ' + str(value) + '<br/>'
-# 	data = {}
-# 	for key, value in dict(request.META).items():
-# 		data[str(key)] = str(value)
-# 	return JsonResponse(data)

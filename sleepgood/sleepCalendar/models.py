@@ -1,7 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import User
 from django.utils import timezone
-
+from authtools.models import User
 import uuid
 import datetime
 
@@ -14,17 +13,6 @@ def generateUUID(userId=None, date=None):
 	currentMilliseconds = datetime.datetime.now().timestamp()
 	uuidValue = uuid.uuid3(uuid.NAMESPACE_DNS, str(userId) + str(date) + str(currentMilliseconds))
 	return str(uuidValue)
-
-
-class Test(models.Model):
-	created = models.DateTimeField(auto_now_add=True)
-	title = models.CharField(max_length=100, blank=True, default='')
-	code = models.TextField()
-	user = models.ForeignKey(User, on_delete=models.CASCADE)
-
-	class Meta:
-		ordering = ('created',)
-
 
 class Day(models.Model):
 	# Specify which values are available for the sleepingQuality and

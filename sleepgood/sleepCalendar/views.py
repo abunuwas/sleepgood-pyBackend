@@ -1,14 +1,9 @@
 import json
-import dateutil.parser
 
-from django.contrib.auth.models import User
+import dateutil.parser
 from django.http import HttpResponse
-from django.http import JsonResponse
 from rest_framework import status, mixins, generics, permissions
-from rest_framework.parsers import JSONParser
-from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from six import BytesIO
 
 from .jwtWrapper import jwtWrapper
 from .models import Day
