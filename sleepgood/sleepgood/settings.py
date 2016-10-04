@@ -41,8 +41,9 @@ INSTALLED_APPS = [
 	'corsheaders',
 	'sleepCalendar',
 	'accounts',
+	'authtools'
 ]
-
+AUTH_USER_MODEL = 'authtools.User'
 MIDDLEWARE_CLASSES = [
 	'django.middleware.security.SecurityMiddleware',
 	'django.contrib.sessions.middleware.SessionMiddleware',
@@ -59,7 +60,7 @@ REST_FRAMEWORK = {
 	'DEFAULT_PERMISSION_CLASSES': (
 		'rest_framework.parsers.JSONParser',
 		'rest_framework.permissions.AllowAny'
-	),  # Change later to 'rest_framework.permissions.IsAdminUser'
+	),
 	'PAGE_SIZE': 10
 }
 
@@ -100,7 +101,6 @@ DATABASES = {
         'PORT': ''
     }
 }
-
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
 
