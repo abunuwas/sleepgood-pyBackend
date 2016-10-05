@@ -33,7 +33,7 @@ class Sessions(APIView):
 				encoded = wrapper.create(user.id)
 				data = {
 					'token_key': str(encoded.decode("utf-8")),
-					'name': str(user.get_username()),
+					'name': str(user.get_short_name()),
 					'userId': str(user.id)
 				}
 				return JsonResponse(data)
@@ -86,7 +86,7 @@ class Users(APIView):
 		encoded = wrapper.create(new_user.id)
 		data = {
 			'token_key': str(encoded.decode("utf-8")),
-			'name': str(new_user.get_username()),
+			'name': str(new_user.get_short_name()),
 			'userId': str(new_user.id)
 		}
 
