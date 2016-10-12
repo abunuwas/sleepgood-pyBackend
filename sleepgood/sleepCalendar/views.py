@@ -11,15 +11,11 @@ from .serializers import DaySerializer
 
 
 # Default
-
-
 def indexView(request):
 	return HttpResponse('You are in index view!')
 
 
 # Calendar
-
-
 class CalendarList(mixins.ListModelMixin,
 				   generics.GenericAPIView):
 	queryset = Day.objects.all()
@@ -193,3 +189,19 @@ class CalendarDetails(mixins.RetrieveModelMixin,
 		return_data = json.dumps(return_data)
 		self.perform_destroy(dbEntry)
 		return Response(return_data)
+
+### Test helper
+def getDatetimeFromISO(dateISO):
+	'''
+	Expects a date string in ISO format as returned, for example, by the JavaScript function
+	toISOString(), and returns a datetime object, using the third party library python-dateutil.
+	If the data doesn't follow a valid date format, it returns an HTTP 400 response.
+	Examples:
+	getDatetimeFromISO("2016-02-09T22:41:21.955Z) => datetime.datetime(2016, 2, 9, 22, 41, 21, 955000, tzinfo=tzutc()).
+	getDatetimeFromISO("2016-02-09") => datetime.datetime(2016, 2, 9, 0, 0).
+	getDatetimeFromISO("asdf") => HTTP 404 error code.
+	'''
+	try:
+		return dateutil.parser.parse(dateISO)
+	except ValueError:
+		raise SuspiciousOperation("Date format is not valid!")

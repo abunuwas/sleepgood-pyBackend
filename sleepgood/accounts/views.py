@@ -43,9 +43,9 @@ class Sessions(APIView):
 			return HttpResponse(status.HTTP_401_UNAUTHORIZED)
 
 
-def delete(self, request, format=None):  # Delete user token (sign out)
-	print("delete")
-	return 0;
+	def delete(self, request, format=None):  # Delete user token (sign out)
+		print("delete")
+		return 0;
 
 
 class Users(APIView):
